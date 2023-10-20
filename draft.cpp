@@ -6,7 +6,7 @@ using namespace std;
 int main()
 {
     char playerDecision, ch, characterClass;
-    int stamina = 25;
+    int characterStamina = 25;
     int hungerBar = 0;
     bool endgame = false;
 
@@ -41,23 +41,23 @@ int main()
         cout << "       " << setw(6) << " Backward (B)" << endl << endl;
 
         cin >> playerDecision;
-        stamina -= 1;
+        characterStamina -= 1;
 
-        cout << stamina << endl;
+        cout << characterStamina << endl;
 
-        // Decision tree based on player movement choices, and stamina.
-        if (playerDecision == 'F' && stamina == 24)
+        // Decision tree based on player movement choices, and characterStamina.
+        if (playerDecision == 'F' && characterStamina == 24)
             cout << "You walk to the sliding doors, it seems to be raining outside." << endl;
-        else if (playerDecision == 'B' && stamina == 24)
+        else if (playerDecision == 'B' && characterStamina == 24)
             cout << "Watch out for those chess pieces!" << endl;
-        else if (playerDecision == 'L' && stamina == 24)
+        else if (playerDecision == 'L' && characterStamina == 24)
             cout << "Looks like theres a bunch of chairs and books in the way, cant go there." << endl;
-        else if (playerDecision == 'R' && stamina == 24)
+        else if (playerDecision == 'R' && characterStamina == 24)
             cout << "Theres the help desk! Looks like someone is waiting for you to ask a question." << endl;
         else
             cout << "Invalid input" << endl;
 
-        if (stamina < 15)
+        if (characterStamina < 15)
             cout << "You're feeling tired..." << endl;
 
     }
