@@ -1,3 +1,3 @@
 # symp-project
-Symposium Project
+| Symposium Project |
 Dev Team:
