@@ -10,6 +10,10 @@ int main()
     int hungerBar = 0;
     bool endgame = false;
 
+    // Intro prompt
+    cout << "You just finished playing a game of chess in the library and feel quite hungry, your next class begins in an hour and 30 minutes." << endl;
+    cout << "Make it to the dining hall to quench your hunger before you make it to your next class." << endl << endl;
+    
     // Class pick menu
     cout << "Please pick your class type:" << endl;
     cout << "Athlete Class (a) - Starts with protein bars" << "           " << "Geek Class (g) - Starts with umbrella" << endl;
@@ -28,10 +32,6 @@ int main()
     cout << "When ready, press the enter key to proceed with the game." << endl;
     cin.get();
     cin.get(ch);
-
-    // Intro prompt
-    cout << "You just finished playing a game of chess in the library and feel quite hungry, your next class begins in an hour and 30 minutes." << endl;
-    cout << "Make it to the dining hall to quench your hunger before you make it to your next class." << endl << endl;
 
     // Game loop continues while the endgame flag is false
     while (!endgame)
