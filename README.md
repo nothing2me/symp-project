@@ -1,2 +1,3 @@
 # symp-project
-Symposium project game
+Symposium Project
+Dev Team:
