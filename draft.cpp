@@ -1,5 +1,4 @@
 #include <iostream>
-#include <iomanip>
 
 using namespace std;
 
@@ -44,57 +43,54 @@ int main()
 
     // Game loop continues while the endgame flag is false
     while (characterStamina > NO_STAMINA) {
-        string location = "Library";
-
-        cout << "       " << setw(6) << " Forward (f)" << endl;
-        cout << setw(6) << "Left (l) " << "          " << " Right (r)"<< endl;
-        cout << "       " << setw(6) << " Backward (b)" << endl << endl;
-        cout << "  " << setw(6) << characterStamina << " Stamina Left" << endl << endl;
-        cin >> playerDecision;
+        string location;
+        string locationMessage;
         characterStamina -= 1;
+        location = "Library";
+        
+        // Decision tree below based on player movement choices, and characterStamina.
+        // definitely need to change how the movement system will work, need to use a method that doesn't use character
+        // stamina to limit interactions
+        // Library * this is restructured so that locationMessage will print correctly
+        if (location == "Library") {
+            locationMessage = "Welcome to the library";
+            if (playerDecision == "f" && characterStamina == 23)
+                locationMessage = "You walk to the sliding doors, it seems to be raining outside.";
+            else if (playerDecision == "f" && characterStamina == 22) {
+                locationMessage = "Walking through the sliding doors, you enter the Breezeway";
+            }
+            else if (playerDecision == "f" && characterStamina == 21 ){
+                location = "Breezeway";
+            }
+        }
+       
+        // Breezeway
+        if (location == "Breezeway") {
+            if (playerDecision == "f" && characterStamina == 21)
+                locationMessage = "You are now in the Breezeway"; // need to fix location because it keeps getting set to library after here
+            else if (playerDecision == "f" && characterStamina == 20)
+                locationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
+            else
+                locationMessage = "error";
+        }
+
+        // UI
+        cout << "|| " << locationMessage << endl;
+        cout << "|]===============================[|" << endl;
+        cout << "||         Forward (f)           ||" << endl;
+        cout << "|| Left (l)            Right (r) ||"<< endl;
+        cout << "||         Backward (b)          ||" << endl;
+        cout << "||                               ||" << endl;
+        cout << "||      " << characterStamina <<"  Stamina Left         ||" << endl;
+        cout << "|]===============================[|" << endl;
+        cin >> playerDecision;
 
         // Warning that the player is running out of turns
         if (characterStamina < 15)
             cout << "You're feeling tired..." << endl;
-        
-        // Decision tree below based on player movement choices, and characterStamina.
-        // definitely need to change how the movement system will work, need to use a method that doesnt use character
-        // stamina to limit interactions
-        
-        // Library
-        if (location == "Library") {
-            if (playerDecision == "f" && characterStamina == 24)
-                cout << "You walk to the sliding doors, it seems to be raining outside." << endl;
-            else if (playerDecision == "f" && characterStamina == 23) {
-                cout << "Walking through the sliding doors, you enter the Breezeway" << endl;
-                location = "Breezeway";
-            }
-        }
-
-        // Breezeway
-        if (location == "Breezeway") {
-            if (playerDecision == "f" && characterStamina == 23)
-                cout << "You are now in the Breezeway" << endl;
-            else if (playerDecision == "f" && characterStamina == 22)
-                cout << "Walking straight, you're on a path in between starbucks and a statue." << endl;
-        }
-
-        /* playerDecision is stored as a char here still
-        if (playerDecision == 'F' && characterStamina == 24)
-            cout << "You walk to the sliding doors, it seems to be raining outside." << endl;
-        else if (playerDecision == 'B' && characterStamina == 24)
-            cout << "Watch out for those chess pieces!" << endl;
-        else if (playerDecision == 'L' && characterStamina == 24)
-            cout << "Looks like theres a bunch of chairs and books in the way, cant go there." << endl;
-        else if (playerDecision == 'R' && characterStamina == 24)
-            cout << "Theres the help desk! Looks like someone is waiting for you to ask a question." << endl;
-        else
-            cout << "Invalid input" << endl;
-        */
-
 
     }
-    
+
     // End text to show user stats, etc.
     if (characterStamina == 0) {
         cout << "Game Over. You ran out of time and missed your class." << endl;
