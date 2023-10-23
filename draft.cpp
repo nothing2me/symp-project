@@ -49,6 +49,7 @@ int main()
     // Explain game mechanics
     cout << "Move either forward, backward, left or right." << endl;
     cout << "You can also type in actions such as examine, use, and store followed by the item name." << endl << endl;
+    
     // Set Starting conditions
     if (justStarted){
         location = "Library";
