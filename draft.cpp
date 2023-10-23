@@ -1,4 +1,5 @@
 #include <iostream>
+
 using namespace std;
 
 int main()
@@ -10,10 +11,20 @@ int main()
     string characterClassroom, playerDecision, locationBank;
     string location, locationMessage;
 
+    
+    // Splash Screen
+    cout << "|]===============================[|" << endl;
+    cout << "||         MEDIOCRACY'S          ||" << endl;
+    cout << "||                               ||" << endl;
+    cout << "||         Hunger Pains          ||" << endl;
+    cout << "||                               ||" << endl;
+    cout << "|]===============================[|" << endl;
+
     // Class pick menu
     while(true){
         cout << "Please pick your class type:" << endl;
-        cout << "Athlete Class (1) - Starts with protein bars" << "           "<< "Geek Class (2) - Starts with umbrella" << endl;
+        cout << "Athlete Class (1) - Starts with protein bars" << endl;
+        cout << "Geek Class    (2) - Starts with umbrella" << endl;
 
         if (cin >> characterClass) {
            break;
@@ -35,7 +46,7 @@ int main()
             break;
         default: cout << "Invalid input" << endl;
     }
-    
+
     // Start of the Game
     cout << "When ready, press the enter key to proceed with the game." << endl;
     cin.get();
@@ -48,11 +59,12 @@ int main()
     // Explain game mechanics
     cout << "Move either forward, backward, left or right." << endl;
     cout << "You can also type in actions such as examine, use, and store followed by the item name." << endl << endl;
-    
+
     // Set Starting conditions
     if (justStarted){
         location = "Library";
     }
+
     // Game loop continues while the endgame flag is false
     while (characterStamina > NO_STAMINA) {
         characterStamina -= 1;
@@ -112,4 +124,5 @@ int main()
         cout << "Game Over. You ran out of time and missed your class." << endl;
         cout << "You finished with a total of " << hungerBar << " points!";
     }
+
 }
