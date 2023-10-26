@@ -11,11 +11,11 @@ int main()
     string characterClassroom, playerDecision, locationBank;
     string location, locationMessage;
 
-    
+
     // Splash Screen
-    cout << "||=============||" << endl;
-    cout << "|| Mediocracy's||" << endl;
-    cout << "||=============||===========================================================================================||" << endl;
+    cout << "||==============||" << endl;
+    cout << "|| Mediocracy's ||" << endl;
+    cout << "||==============||==========================================================================================||" << endl;
     cout << "||  ____  ____                                                   _______             _                      ||" << endl;
     cout << "|| |_   ||   _|                                                 |_   __ \\           (_)                     ||" << endl;
     cout << "||   | |__| |    __   _    _ .--.     .--./)  .---.   _ .--.      | |__) |  ,--.    __    _ .--.    .--.    ||" << endl;
@@ -25,21 +25,23 @@ int main()
     cout << "||                                  ( ( __))                                                                ||" << endl;
     cout << "||==========================================================================================================||" << endl;
 
-    // Class pick menu
-    while(true){
+    // Class Pick Menu
+    do{
         cout << "Please pick your class type:" << endl;
         cout << "Athlete Class (1) - Starts with protein bars" << endl;
         cout << "Geek Class    (2) - Starts with umbrella" << endl;
 
-        if (cin >> characterClass) {
-           break;
+        if (cin >> characterClass && characterClass < 3 && characterClass > 0) {
+            location = "Library";
+                break;
         } else { // Clears the cin if characterClass is something other than an int, such as a char or string
             cin.clear();
             cin.ignore();
             cout << "Invalid Input" << endl;
             continue;
         }
-    }
+    } while(true);
+
     // Cases for each class, needs to include items into player inventory before break also
     switch (characterClass)
     {
@@ -64,12 +66,12 @@ int main()
     // Explain game mechanics
     cout << "Move either forward, backward, left or right." << endl;
     cout << "You can also type in actions such as examine, use, and store followed by the item name." << endl << endl;
-
+/*
     // Set Starting conditions
     if (justStarted){
         location = "Library";
     }
-
+*/
     // Game loop continues while the endgame flag is false
     while (characterStamina > NO_STAMINA) {
         characterStamina -= 1;
