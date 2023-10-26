@@ -8,8 +8,8 @@ int main()
     const int NO_STAMINA = 0;
     int characterClass, hungerBar = 0, characterStamina = 25;
     bool justStarted = true;
-    string characterClassroom, playerDecision, locationBank;
-    string location, locationMessage;
+    string characterClassroom, playerDecision, playerLocationBank;
+    string playerLocation, playerLocationMessage;
 
 
     // Splash Screen
@@ -32,7 +32,7 @@ int main()
         cout << "Geek Class    (2) - Starts with umbrella" << endl;
 
         if (cin >> characterClass && characterClass < 3 && characterClass > 0) {
-            location = "Library";
+            playerLocation = "Library";
                 break;
         } else { // Clears the cin if characterClass is something other than an int, such as a char or string
             cin.clear();
@@ -69,7 +69,7 @@ int main()
 /*
     // Set Starting conditions
     if (justStarted){
-        location = "Library";
+        playerLocation = "Library";
     }
 */
     // Game loop continues while the endgame flag is false
@@ -78,41 +78,41 @@ int main()
         // Decision tree below based on player movement choices, and characterStamina.
         // definitely need to change how the movement system will work, need to use a method that doesn't use character
         // stamina to limit interactions
-        // Library * this is restructured so that locationMessage will print correctly
-        if (location == "Library") {
-            locationMessage = "Welcome to the library";
+        // Library * this is restructured so that playerLocationMessage will print correctly
+        if (playerLocation == "Library") {
+            playerLocationMessage = "Welcome to the library";
             if (playerDecision == "f" && characterStamina == 23)
-                locationMessage = "You walk to the sliding doors, it seems to be raining outside.";
+                playerLocationMessage = "You walk to the sliding doors, it seems to be raining outside.";
             else if (playerDecision == "f" && characterStamina == 22) {
-                locationMessage = "Walking through the sliding doors, you enter the Breezeway";
+                playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
             }
             else if (playerDecision == "f" && characterStamina == 21 ){
                 justStarted = false;
-                location = "Breezeway";
+                playerLocation = "Breezeway";
 
             }
         }
         // Breezeway
-        if (location == "Breezeway") {
+        if (playerLocation == "Breezeway") {
             if (playerDecision == "f" && characterStamina == 21)
-                locationMessage = "You are now in the Breezeway"; // need to fix location because it keeps getting set to library after here
+                playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
             else if (playerDecision == "f" && characterStamina == 20)
-                locationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
+                playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
             else if (playerDecision == "l" && characterStamina == 19) {
-                locationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
-                location = "Hector";
+                playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
+                playerLocation = "Hector";
             }
             else
-                locationMessage = "error";
+                playerLocationMessage = "error";
         }
         // Hector plaza
-        if (location == "Hector") {
+        if (playerLocation == "Hector") {
             if (playerDecision == "f" && characterStamina == 18) {
-                locationMessage = "You can pickup the item, or chose to move";
+                playerLocationMessage = "You can pickup the item, or chose to move";
             }
         }
         // UI
-        cout << "|| " << locationMessage << endl;
+        cout << "|| " << playerLocationMessage << endl;
         cout << "|]===============================[|" << endl;
         cout << "||         Forward (f)           ||" << endl;
         cout << "|| Left (l)            Right (r) ||"<< endl;
