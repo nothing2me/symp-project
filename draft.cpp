@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <cstdlib>
 using namespace std;
 
 char continueGame;
@@ -15,8 +16,12 @@ void movementSystem(int playerActions);
 void playerUI(int playerActions, int hungerBar);
 void gameEndConditions(int finalScore, int playerActions, int hungerBar);
 
+
+// ADD SO THAT IT ONLY USES STAMINA IF THE INPUT IS only f, b, l, r
 int main()
 {
+    srand(time(NULL));
+
     int finalScore, actionCounter = 0, hungerBar = 100, playerActions = 25;
 
     // Splash Screen
@@ -46,6 +51,17 @@ int main()
         if (actionCounter == 0)
             hungerBar = hungerBar - 5;
 
+        // Lightning Chance
+        if (playerLocation == "Outside" && actionCounter == 0) {
+            int randomNumber;
+            randomNumber = rand() % 30 + 1;
+            if (randomNumber != 5) {
+                cout << "You hear thunder, be advised you should head inside." << endl;
+            } else {
+                cout << "You've been struck by lightning! You REALLY need to find some food.";
+                hungerBar -= 20;
+            }
+        }
         // Warning that the player is running out of turns and hunger
         if (hungerBar <= 40) {
             cout << "You're feeling tired, Find food to refill your stamina." << endl;
@@ -161,8 +177,10 @@ void movementSystem(int playerActions){
     if (playerLocation == "Breezeway") {
         if (playerDecision == "f" && playerActions == 21)
             playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
-        else if (playerDecision == "f" && playerActions == 20)
+        else if (playerDecision == "f" && playerActions == 20) {
             playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
+            playerLocation = "Outside";
+        }
         else if (playerDecision == "l" && playerActions == 19) {
             playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
             playerLocation = "Hector";
@@ -178,3 +196,4 @@ void movementSystem(int playerActions){
         }
     }
 }
+
