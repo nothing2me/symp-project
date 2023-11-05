@@ -5,13 +5,12 @@
 #include <set>
 
 using namespace std;
-
-char continueGame;
 string playerClassroom,
         playerDecision,
         playerLocation,
         playerLocationMessage;
-
+const int MAX_HUNGER = 100;
+const int MAX_STAMINA = 25;
 void splashScreen();
 void classPicker();
 void gameIntro();
@@ -26,9 +25,11 @@ void movementSystem(int playerActions, int mealChoice, int hungerBar);
 int main()
 {
     srand(time(NULL));
+    int finalScore, mealChoice = 0, actionCounter = 0, hungerBar, playerActions;
+    hungerBar = MAX_HUNGER;
+    playerActions = MAX_STAMINA;
+    set<string> allowedDecisions = {"w", "a", "s", "d", "1", "2", "3", "backpack", "umbrella"};
 
-    int finalScore, mealChoice = 0, actionCounter = 0, maxHunger = 100, hungerBar = 80, playerActions = 25;
-    set<string> allowedDecisions = {"w", "a", "s", "d"};
     // Splash Screen
     splashScreen();
     // Class Pick Menu
@@ -36,37 +37,50 @@ int main()
     // Start of the Game
     gameIntro();
 
-    // Game loop continues while the endgame flag is false
+    // Game loop continues while player still has stamina and hunger
     do{
         // Operations needed every iteration
         actionCounter++;
         finalScore = (hungerBar + playerActions) / 2;
 
-        // Decision tree below is based on player movement choices, and playerActions.
-        // definitely need to change how the movement system will work, need to use a method that doesn't use player
-        // stamina to limit interactions
-        if (allowedDecisions.find(playerDecision) != allowedDecisions.end()) {
+        bool pauseHunger = false; // handles when hungerBar can be manipulated
+        /*
+          Decision tree func below is based on player movement choices, and playerActions.
+          definitely need to change how the movement system will work, need to use a method that doesn't use player
+          stamina to limit interactions
+        */
+        
+        if (allowedDecisions.count(playerDecision)) {
             movementSystem(playerActions, mealChoice, hungerBar);
-        } else {
-            cout << "invalid";
+        } else { 
+            ++playerActions;
+            if (playerActions > 25)
+                playerActions = MAX_STAMINA;
+            else {
+                cout << "That didnt seem to do anything.." << endl;
+                pauseHunger = true; 
+            }
         }
+
         // UI
         playerUI(playerActions, hungerBar);
-
-        // add 20 hb if the character has been to the Dining Hall
-        if (playerLocation == "Dining Hall" && hungerBar <= 80) {
+        /*
+         add 20 hunger if the character has been to the Dining Hall, sets playerLocation
+         to plaza to indicate the player has completed their first goal
+         of getting lunch, and that they now need to head to their designated class.
+        */
+         if (playerLocation == "Dining Hall" && hungerBar <= 80) {
             hungerBar += 20;
-        } else if (hungerBar >= 85) {
-            hungerBar = maxHunger;
+        } else if (playerLocation == "Dining Hall" && hungerBar >= 85) {
+            hungerBar = MAX_HUNGER;
             playerLocation = "Plaza";
         }
 
         // -1 Stamina every turn
         --playerActions;
-
         // Remove hunger every 5 actions
         actionCounter = actionCounter % 5;
-        if (actionCounter == 0)
+        if (actionCounter == 0 && pauseHunger == 0)
             hungerBar = hungerBar - 5;
 
 
@@ -92,6 +106,7 @@ int main()
     // End text to show user stats, etc.
     gameEndConditions(finalScore, playerActions, hungerBar);
 
+    return 0;
 }
 
 void splashScreen(){
@@ -115,14 +130,14 @@ void playerUI(int playerActions, int hungerBar){
 
     cout << "|| " << playerLocationMessage << endl;
     cout << "|]===============================[|" << endl;
-    cout << "||         Forward (w)           ||" << endl;
-    cout << "|| Left (a)            Right (d) ||"<< endl;
-    cout << "||         Backward (s)          ||" << endl;
-    cout << "||                               ||" << endl;
-    cout << "||" << setw(15 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << "||" << endl;
-    cout << "||" << setw(15 + textPadding / 2) << hungerText << setw(8 + textPadding / 2) << "||" << endl;
+    cout << "           Forward (w)             " << endl;
+    cout << "   Left (a)            Right (d)   "<< endl;
+    cout << "           Backward (s)            " << endl;
+    cout << "                                   " << endl;
+    cout<< setw(16 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << endl;
+    cout << setw(16 + textPadding / 2) << hungerText << setw(8 + textPadding / 2)  << endl;
     cout << "|]===============================[|" << endl;
-    cout << playerLocation << endl; // temp display location
+    cout << "Current Location " << playerLocation << endl; // temp display location
     cin >> playerDecision;
 }
 
@@ -147,11 +162,11 @@ void classPicker(){
     // Cases for each class, needs to include items into player inventory before break also
     switch (playerClass)
     {
-        case 1: cout << "The Athlete starts with 1 special protein bar (More energy = more moves and points)" << endl;
+        case 1:
             playerClassroom = "Dugan Wellness Center";
             playerLocation = "Library"; // Set starting location, used this one to test for Dining Hall func
             break;
-        case 2: cout << "The Geek has an umbrella to avoid getting wet (Easier to travel)" << endl;
+        case 2:
             playerClassroom = "Science Center";
             playerLocation = "Library"; // Set starting location
             break;
@@ -160,19 +175,16 @@ void classPicker(){
 }
 
 void gameIntro(){
-    cout << "When ready, press the enter key to proceed with the game." << endl;
-    cin.get();
-    cin.get(continueGame);
-
+    getline(cin, playerDecision);
     // Intro text
     cout << "You just finished playing a game of chess in the library and feel quite hungry, your next class begins in 45 minutes." << endl;
     cout << "Make it to the dining hall to sooth your hunger before you make it to your next class in the " << playerClassroom << "." << endl << endl;
-    cout << "press the enter key to proceed with the game." << endl;
-    cin.get(continueGame);
+    getline(cin, playerDecision);
 
     // Explain game mechanics
     cout << "Move either forward, backward, left or right." << endl;
     cout << "You can also type in actions such as examine, use, and store followed by the item name." << endl << endl;
+    getline(cin, playerDecision);
 }
 
 void gameEndConditions(int finalScore, int playerActions, int hungerBar){
@@ -188,42 +200,34 @@ void gameEndConditions(int finalScore, int playerActions, int hungerBar){
 
 
 void movementSystem(int playerActions, int mealChoice, int hungerBar2){
-    // trying to get it to accept newline without printing an invalid input
-
-        if (playerLocation == "Library") {
-            playerLocationMessage = "Welcome to the library";
-            if (playerDecision == "w" && playerActions == 23)
-                playerLocationMessage = "You walk to the sliding doors, it seems to be raining outside.";
-            else if (playerDecision == "w" && playerActions == 22) {
-                playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
-            } else if (playerDecision == "w" && playerActions == 21) {
-                playerLocation = "Breezeway";
-            }
+    if (playerLocation == "Library") { // Decision tree for the Library, starting location.
+        playerLocationMessage = "Welcome to the library";
+        if (playerDecision == "w" && playerActions == 23)
+            playerLocationMessage = "You walk to the sliding doors, it seems to be raining outside.";
+        else if (playerDecision == "w" && playerActions == 22) {
+            playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
+        } else if (playerDecision == "w" && playerActions == 21) {
+            playerLocation = "Breezeway";
         }
-
-        // Breezeway
-        if (playerLocation == "Breezeway") {
-            if (playerDecision == "w" && playerActions == 21)
-                playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
-            else if (playerDecision == "w" && playerActions == 20) {
-                playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
-                playerLocation = "Outside";
-            } else if (playerDecision == "a" && playerActions == 19) {
-                playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
-                playerLocation = "Hector";
-            } else
-                playerLocationMessage = "error";
+    } else if (playerLocation == "Breezeway") { // Decision tree for the Breezeway
+        if (playerDecision == "w" && playerActions == 21)
+            playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
+        else if (playerDecision == "w" && playerActions == 20) {
+            playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
+            playerLocation = "Outside";
+        } else if (playerDecision == "a" && playerActions == 19) {
+            playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
+            playerLocation = "Hector";
+        } else
+            playerLocationMessage = "error";
+    } else if (playerLocation == "Hector") { // Decision tree for the Hector Plaza
+        if (playerDecision == "w" && playerActions == 18) {
+            playerLocationMessage = "You can pickup the item, or chose to move";
         }
+    }
 
-        // Hector plaza
-        if (playerLocation == "Hector") {
-            if (playerDecision == "w" && playerActions == 18) {
-                playerLocationMessage = "You can pickup the item, or chose to move";
-            }
-        }
-
-        // Dining Hall Menu
-        diningHallMenu(mealChoice);
+    // Dining Hall Menu
+    diningHallMenu(mealChoice);
 }
 
 // need to add a decision path so player can access the Dining Hall location
