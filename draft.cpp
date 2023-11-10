@@ -14,20 +14,19 @@ const int MAX_STAMINA = 25;
 void splashScreen();
 void classPicker();
 void gameIntro();
+void vendingMachineMenu(int vendingChoice);
+void printHungerBar(int hungerBar);
 void playerUI(int playerActions, int hungerBar);
 void diningHallMenu(int mealChoice);
-void gameEndConditions(int finalScore, int playerActions, int hungerBar);
-void movementSystem(int playerActions, int mealChoice, int hungerBar);
+void gameEndResults(int finalScore, int playerActions, int hungerBar);
+void movementSystem(int playerActions, int mealChoice, int vendingChoice);
 
 
-// ADD SO THAT IT ONLY USES STAMINA IF THE INPUT IS only w, a, s, d and that playerActions AND hungerBar wont decrease
-// if an invalid input is entered
+
 int main()
 {
     srand(time(NULL));
-    int finalScore, mealChoice = 0, actionCounter = 0, hungerBar, playerActions;
-    hungerBar = MAX_HUNGER;
-    playerActions = MAX_STAMINA;
+    int finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
     set<string> allowedDecisions = {"w", "a", "s", "d", "1", "2", "3", "backpack", "umbrella"};
 
     // Splash Screen
@@ -45,44 +44,39 @@ int main()
 
         bool pauseHunger = false; // handles when hungerBar can be manipulated
         /*
-          Decision tree func below is based on player movement choices, and playerActions.
+          Decision tree func movementSystem  is based on player movement choices, and playerActions.
           definitely need to change how the movement system will work, need to use a method that doesn't use player
           stamina to limit interactions
         */
-        
-        if (allowedDecisions.count(playerDecision)) {
-            movementSystem(playerActions, mealChoice, hungerBar);
-        } else { 
+
+        if (allowedDecisions.count(playerDecision)) { // Input validation
+            movementSystem(playerActions, mealChoice, vendingChoice);
+        } else { // Don't reduce hunger or stamina if an incorrect input is entered
             ++playerActions;
             if (playerActions > 25)
                 playerActions = MAX_STAMINA;
             else {
                 cout << "That didnt seem to do anything.." << endl;
-                pauseHunger = true; 
+                pauseHunger = true;
             }
         }
 
         // UI
         playerUI(playerActions, hungerBar);
-        /*
-         add 20 hunger if the character has been to the Dining Hall, sets playerLocation
-         to plaza to indicate the player has completed their first goal
-         of getting lunch, and that they now need to head to their designated class.
-        */
-         if (playerLocation == "Dining Hall" && hungerBar <= 80) {
+
+        // Add 20 hunger if player has been to the dining hall
+        if (playerLocation == "Dining Hall" && hungerBar <= 80) {
             hungerBar += 20;
         } else if (playerLocation == "Dining Hall" && hungerBar >= 85) {
             hungerBar = MAX_HUNGER;
-            playerLocation = "Plaza";
         }
 
-        // -1 Stamina every turn
+        // -1 Stamina every action
         --playerActions;
         // Remove hunger every 5 actions
         actionCounter = actionCounter % 5;
         if (actionCounter == 0 && pauseHunger == 0)
             hungerBar = hungerBar - 5;
-
 
         // Chance for player to be struck by lightning if they are outside
         if (playerLocation == "Outside" && actionCounter == 0) {
@@ -101,10 +95,10 @@ int main()
             cout << "You're feeling tired, Find food to refill your stamina." << endl;
         }
 
-    } while (playerActions > 0 && hungerBar > 0); // end game loop when player runs out of actions/stamina or hunger bar
+    } while (playerActions > 0 && hungerBar > 0); // End game loop when player runs out of actions/stamina or hunger bar
 
     // End text to show user stats, etc.
-    gameEndConditions(finalScore, playerActions, hungerBar);
+    gameEndResults(finalScore, playerActions, hungerBar);
 
     return 0;
 }
@@ -125,20 +119,30 @@ void splashScreen(){
 
 void playerUI(int playerActions, int hungerBar){
     string staminaText = to_string(playerActions) + " Stamina"; // converts playerActions and adds it to string
-    string hungerText = to_string(hungerBar) + " Hunger"; // Prev
-    int textPadding = max(staminaText.length(), hungerText.length()); // Calculates text padding based on string length
+    string hungerText = to_string(hungerBar) + " Hunger";
+    int textPadding = max(staminaText.length(), hungerText.length()); // Calculates text padding based on the length of a string
 
-    cout << "|| " << playerLocationMessage << endl;
+    cout << "|| " << playerLocationMessage << endl; // Displays game messages, what the player can see, npc interactions, etc.
     cout << "|]===============================[|" << endl;
     cout << "           Forward (w)             " << endl;
     cout << "   Left (a)            Right (d)   "<< endl;
     cout << "           Backward (s)            " << endl;
     cout << "                                   " << endl;
-    cout<< setw(16 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << endl;
-    cout << setw(16 + textPadding / 2) << hungerText << setw(8 + textPadding / 2)  << endl;
+    cout<< setw(17 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << endl;
+    cout << setw(17 + textPadding / 2) << hungerText << setw(8 + textPadding / 2)  << endl;
+    printHungerBar(hungerBar);
+    cout << endl;
+    cout << "            Hunger Bar" << endl; // Cant decide whether to display hungerBar as an actual bar or number.
     cout << "|]===============================[|" << endl;
     cout << "Current Location " << playerLocation << endl; // temp display location
     cin >> playerDecision;
+}
+
+
+void printHungerBar(int hungerBar){
+    int half = hungerBar / 10;
+    for (int i = 0; i < half; i++)
+        cout << "*";
 }
 
 void classPicker(){
@@ -163,12 +167,12 @@ void classPicker(){
     switch (playerClass)
     {
         case 1:
-            playerClassroom = "Dugan Wellness Center";
-            playerLocation = "Library"; // Set starting location, used this one to test for Dining Hall func
+            playerClassroom = "Dugan Wellness Center"; // Classroom goal
+            playerLocation = "Library"; // Starting location
             break;
         case 2:
-            playerClassroom = "Science Center";
-            playerLocation = "Library"; // Set starting location
+            playerClassroom = "Science Center"; // Classroom goal
+            playerLocation = "Library"; // Starting location
             break;
         default: cout << "Invalid input" << endl <<endl;
     }
@@ -187,7 +191,8 @@ void gameIntro(){
     getline(cin, playerDecision);
 }
 
-void gameEndConditions(int finalScore, int playerActions, int hungerBar){
+// Conditions to make game end 
+void gameEndResults(int finalScore, int playerActions, int hungerBar){
     if (playerActions == 0) {
         cout << "Game Over, you ran out of time." << endl;
         cout << "You finished with a total of " << finalScore << " points!";
@@ -197,9 +202,8 @@ void gameEndConditions(int finalScore, int playerActions, int hungerBar){
     }
 }
 
-
-
-void movementSystem(int playerActions, int mealChoice, int hungerBar2){
+// Movement System and player interactions
+void movementSystem(int playerActions, int mealChoice, int vendingChoice){
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
         if (playerDecision == "w" && playerActions == 23)
@@ -228,11 +232,13 @@ void movementSystem(int playerActions, int mealChoice, int hungerBar2){
 
     // Dining Hall Menu
     diningHallMenu(mealChoice);
+
+    // Vending Machine Menu
+    vendingMachineMenu(vendingChoice);
 }
 
-// need to add a decision path so player can access the Dining Hall location
+// Need to add a decision path so player can access the Dining Hall location
 void diningHallMenu(int mealChoice){
-    // Dining Hall Menu
     do {
         if (playerLocation == "Dining Hall") {
             cout << "You've made it to the Dining Hall, here you can refill your hunger." << endl;
@@ -251,6 +257,39 @@ void diningHallMenu(int mealChoice){
                     break;
                 case 3:
                     cout << "You chose the pizza and wings." << endl;
+                    break;
+                default:
+                    cout << "Invalid choice. Choose one of the listed options!" << endl;
+                    continue;
+            }
+            cout << "After eating your food, you decide to head to your class in " << playerClassroom << "," << endl;
+            cout << "walking outside from the Dining Hall you find yourself back at the plaza." << endl;
+            playerLocation = "Plaza";
+        }
+        break;
+    }while(true);
+}
+
+// Vending Machine interaction, need to add decision path that leads to vending machine
+void vendingMachineMenu(int vendingChoice){
+    do {
+        if (playerLocation == "Vending Machine") {
+            cout << "You've stumbled upon a vending machine..." << endl;
+            cout << "Pick an option you'd enjoy." << endl;
+            cout << "Meal (1): Protein Bar" << endl;
+            cout << "Meal (2): M&Ms" << endl;
+            cout << "Meal (3): Honey Bun microwaved for 10 minutes" << endl;
+            cin >> vendingChoice;
+
+            switch (vendingChoice) {
+                case 1:
+                    cout << "You chose the protein bar" << endl;
+                    break;
+                case 2:
+                    cout << "You chose the M&Ms" << endl;
+                    break;
+                case 3:
+                    cout << "You chose the honey bun" << endl;
                     break;
                 default:
                     cout << "Invalid choice. Choose one of the listed options!" << endl;
