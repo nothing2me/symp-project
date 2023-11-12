@@ -21,8 +21,6 @@ void diningHallMenu(int mealChoice);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
 void movementSystem(int playerActions, int mealChoice, int vendingChoice);
 
-
-
 int main()
 {
     srand(time(NULL));
@@ -157,7 +155,7 @@ void classPicker(){
             break;
         } else { // Clears the input if playerClass is something other than an int, such as a char or string
             cin.clear();
-            cin.ignore();
+            while (cin.get() != '\n');
             cout << "Invalid Input" << endl;
             continue;
         }
@@ -182,7 +180,8 @@ void gameIntro(){
     getline(cin, playerDecision);
     // Intro text
     cout << "You just finished playing a game of chess in the library and feel quite hungry, your next class begins in 45 minutes." << endl;
-    cout << "Make it to the dining hall to sooth your hunger before you make it to your next class in the " << playerClassroom << "." << endl << endl;
+    cout << "Make it to the dining hall to sooth your hunger before you make it to your next class in the " << playerClassroom << "." << endl;
+    cout << "                                       Press enter to continue." << endl << endl;
     getline(cin, playerDecision);
 
     // Explain game mechanics
@@ -191,7 +190,7 @@ void gameIntro(){
     getline(cin, playerDecision);
 }
 
-// Conditions to make game end 
+// Conditions to make game end
 void gameEndResults(int finalScore, int playerActions, int hungerBar){
     if (playerActions == 0) {
         cout << "Game Over, you ran out of time." << endl;
@@ -206,20 +205,20 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar){
 void movementSystem(int playerActions, int mealChoice, int vendingChoice){
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
-        if (playerDecision == "w" && playerActions == 23)
+        if (playerDecision == "w" && playerActions == 24)
             playerLocationMessage = "You walk to the sliding doors, it seems to be raining outside.";
-        else if (playerDecision == "w" && playerActions == 22) {
+        else if (playerDecision == "w" && playerActions == 23) {
             playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
-        } else if (playerDecision == "w" && playerActions == 21) {
+        } else if (playerDecision == "w" && playerActions == 22) {
             playerLocation = "Breezeway";
         }
     } else if (playerLocation == "Breezeway") { // Decision tree for the Breezeway
-        if (playerDecision == "w" && playerActions == 21)
+        if (playerDecision == "w" && playerActions == 22)
             playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
-        else if (playerDecision == "w" && playerActions == 20) {
+        else if (playerDecision == "w" && playerActions == 21) {
             playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
             playerLocation = "Outside";
-        } else if (playerDecision == "a" && playerActions == 19) {
+        } else if (playerDecision == "a" && playerActions == 20) {
             playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
             playerLocation = "Hector";
         } else
