@@ -14,18 +14,21 @@ const int MAX_STAMINA = 25;
 void splashScreen();
 void classPicker();
 void gameIntro();
+void secretMiniGame(int randomNumber, int playerGuess, int counter, int finalScore, bool hasGuessed);
 void vendingMachineMenu(int vendingChoice);
-void printHungerBar(int hungerBar);
-void playerUI(int playerActions, int hungerBar);
+void printWetnessBar(int wetnessBar);
+void playerUI(int playerActions, int hungerBar, int wetnessBar);
 void diningHallMenu(int mealChoice);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
-void movementSystem(int playerActions, int mealChoice, int vendingChoice);
+void movementSystem(int playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int finalScore, bool hasGuessed);
 
 int main()
 {
     srand(time(NULL));
-    int finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
-    set<string> allowedDecisions = {"w", "a", "s", "d", "1", "2", "3", "backpack", "umbrella"};
+    bool hasGuessed = false;
+    int randomNumber, playerGuess, counter = 0, finalScore, wetnessBar = 100, vendingChoice = 0, mealChoice = 0, actionCounter = 0, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
+    set<string> allowedDecisions = {"w", "a", "s", "d", "1", "2", "3", "Yes", "yes", "backpack", "umbrella"};
+
 
     // Splash Screen
     splashScreen();
@@ -48,7 +51,7 @@ int main()
         */
 
         if (allowedDecisions.count(playerDecision)) { // Input validation
-            movementSystem(playerActions, mealChoice, vendingChoice);
+            movementSystem(playerActions, mealChoice, vendingChoice, randomNumber, playerGuess, counter, finalScore, hasGuessed);
         } else { // Don't reduce hunger or stamina if an incorrect input is entered
             ++playerActions;
             if (playerActions > 25)
@@ -58,9 +61,11 @@ int main()
                 pauseHunger = true;
             }
         }
+        // Number guessing game
+        // secretMiniGame(randomNumber, playerGuess, counter, hasGuessed);
 
         // UI
-        playerUI(playerActions, hungerBar);
+        playerUI(playerActions, hungerBar, wetnessBar);
 
         // Add 20 hunger if player has been to the dining hall
         if (playerLocation == "Dining Hall" && hungerBar <= 80) {
@@ -82,6 +87,7 @@ int main()
             chanceOfLightning = rand() % 30 + 1;
             if (chanceOfLightning != 5) {
                 cout << "You hear thunder, be advised you should head inside." << endl;
+                --wetnessBar;
             } else {
                 cout << "You've been struck by lightning! You REALLY need to find some food.";
                 hungerBar -= 20;
@@ -115,7 +121,7 @@ void splashScreen(){
     cout << "||==========================================================================================================||" << endl;\
 }
 
-void playerUI(int playerActions, int hungerBar){
+void playerUI(int playerActions, int hungerBar, int wetnessBar){
     string staminaText = to_string(playerActions) + " Stamina"; // converts playerActions and adds it to string
     string hungerText = to_string(hungerBar) + " Hunger";
     int textPadding = max(staminaText.length(), hungerText.length()); // Calculates text padding based on the length of a string
@@ -128,19 +134,22 @@ void playerUI(int playerActions, int hungerBar){
     cout << "                                   " << endl;
     cout<< setw(17 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << endl;
     cout << setw(17 + textPadding / 2) << hungerText << setw(8 + textPadding / 2)  << endl;
-    printHungerBar(hungerBar);
+    cout << "            Wetness Bar" << endl; // Cant decide whether to display hungerBar as an actual bar or number.
+    cout << "            ";
+    printWetnessBar(wetnessBar);
     cout << endl;
-    cout << "            Hunger Bar" << endl; // Cant decide whether to display hungerBar as an actual bar or number.
+
     cout << "|]===============================[|" << endl;
     cout << "Current Location " << playerLocation << endl; // temp display location
     cin >> playerDecision;
 }
 
 
-void printHungerBar(int hungerBar){
-    int half = hungerBar / 10;
-    for (int i = 0; i < half; i++)
-        cout << "*";
+void printWetnessBar(int wetnessBar) {
+    int half = wetnessBar / 10;
+    for (int i = 0; i < half; i++) {
+    cout << "*";
+    }
 }
 
 void classPicker(){
@@ -202,7 +211,7 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar){
 }
 
 // Movement System and player interactions
-void movementSystem(int playerActions, int mealChoice, int vendingChoice){
+void movementSystem(int playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int finalScore, bool hasGuessed){
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
         if (playerDecision == "w" && playerActions == 24)
@@ -211,6 +220,10 @@ void movementSystem(int playerActions, int mealChoice, int vendingChoice){
             playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
         } else if (playerDecision == "w" && playerActions == 22) {
             playerLocation = "Breezeway";
+        } else if (playerDecision == "d" && playerActions == 23){
+            playerLocationMessage = "You approach a man dressed in dark age clothing, do you wish to talk to him? Yes/No \n    Lets see if you can guess the secret number...";
+        } else if (playerDecision == "Yes" || playerDecision == "yes" && playerActions == 22){
+            secretMiniGame(randomNumber, playerGuess, counter, finalScore, hasGuessed);
         }
     } else if (playerLocation == "Breezeway") { // Decision tree for the Breezeway
         if (playerDecision == "w" && playerActions == 22)
@@ -299,4 +312,46 @@ void vendingMachineMenu(int vendingChoice){
         }
         break;
     }while(true);
+}
+
+void secretMiniGame(int randomNumber, int playerGuess, int counter, int finalScore, bool hasGuessed){
+    randomNumber = rand() % 100 + 1;
+    int bonusAmt;
+    cout << "Guess the random number: ";
+    do{
+        ++counter;
+        do {
+            if (cin >> playerGuess) {
+                if (playerGuess > 0) { // Check for correct input within a range
+                    break;
+                } else {
+                    cout << "|| Invalid, enter a number: ";
+                }
+            } else {
+                cout << "|| Invalid, enter a number: ";
+                cin.clear();
+                while (cin.get() != '\n');
+            }
+        } while (true);
+
+        if(playerGuess == randomNumber){
+            cout << "|| Congratulations! \n || You found the secret number!" << endl;
+            hasGuessed = true;
+        } else if(playerGuess > randomNumber){
+            cout << "|| Lower, try again: ";
+        } else if(playerGuess < randomNumber){
+            cout << "|| Higher, try again: ";
+        }
+    }while(!hasGuessed);
+
+    if (counter <= 4){
+        finalScore += 10;
+        bonusAmt = 10;
+    } else if(counter >= 5 && counter <= 10){
+        finalScore += 5;
+        bonusAmt = 5;
+    }
+
+    cout << "|| It took you " << counter << " attempts!" << endl;
+    cout << "|| That scored you " << bonusAmt << " points!" << endl;
 }
