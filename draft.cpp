@@ -15,7 +15,7 @@ ifstream saveFile("savefile.txt");
 const int MAX_HUNGER = 100;
 const int MAX_STAMINA = 25;
 void splashScreen();
-void classPicker();
+void classPicker(int& playerClass);
 void gameIntro();
 void secretMiniGame(int randomNumber, int playerGuess, int counter, bool hasGuessed, bool hasUmbrella);
 void vendingMachineMenu(int vendingChoice);
@@ -25,26 +25,25 @@ void diningHallMenu(int mealChoice);
 void saveProgress(int playerActions, int hungerBar);
 void loadSaveFile(int& playerActions, int& hungerBar);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
-void movementSystem(int correctAnswers, int playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, bool hasGuessed, bool hasUmbrella);
+int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool hasUmbrella);
 int finalExam(int correcctAnswers);
 int useUmbrella(bool hasUmbrella, int wetnessBar);
+int lightningChance(int& wetnessBar, int& hungerBar ,int actionCounter);
 int endGame = 1;
-
-
 
 int main()
 {
     system("Color 03");
     srand(time(NULL));
     bool hasGuessed = false, hasUmbrella = false;
-    int correctAnswers = 100,randomNumber, playerGuess, counter = 0, finalScore, wetnessBar = 100, vendingChoice = 0, mealChoice = 0, actionCounter = 0, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
+    int correctAnswers = 100,randomNumber, playerClass, playerGuess, counter = 0, finalScore, wetnessBar = 100, vendingChoice = 0, mealChoice = 0, actionCounter = 0, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
     set<string> allowedDecisions = {"w", "a", "s", "d", "1", "2", "3", "Yes", "yes", "backpack","Use umbrella", "use umbrella", "leave"};
     playerLocationMessage = "Welcome to the library, you can see a mysterious man standing forward and to your right";
 
     // Splash Screen
     splashScreen();
     // Class Pick Menu
-    classPicker();
+    classPicker(playerClass);
     // Start of the Game
     gameIntro();
     // Load Save
@@ -63,22 +62,31 @@ int main()
         finalScore = (hungerBar + playerActions + 40) / 2;
 
         bool pauseHunger = false; // handles when hungerBar can be manipulated
+        bool pausePlayerActions = false;
         /*
           Decision tree func movementSystem  is based on player movement choices, and playerActions.
           definitely need to change how the movement system will work, need to use a method that doesn't use player
           stamina to limit interactions
         */
+        getline(cin, playerDecision);
 
         if (allowedDecisions.count(playerDecision)) { // Input validation
-            movementSystem(correctAnswers, playerActions, mealChoice, vendingChoice, randomNumber, playerGuess, counter, hasGuessed, hasUmbrella);
+            movementSystem(correctAnswers, playerActions, mealChoice, vendingChoice, randomNumber, playerGuess, counter, playerClass, hasGuessed, hasUmbrella);
         } else { // Don't reduce hunger or stamina if an incorrect input is entered
             ++playerActions;
-            if (playerActions > 25)
+            if (playerActions > 25) {
                 playerActions = MAX_STAMINA;
+            }else if(playerLocationMessage == "Cant go that way"){
+                pausePlayerActions = true;
+            }
             else {
                 cout << "|| That didnt seem to do anything..." << endl;
                 pauseHunger = true;
             }
+        }
+        // Keep playerActions from overflowing
+        if (playerActions > 25) {
+            playerActions = MAX_STAMINA;
         }
 
         // UI
@@ -92,7 +100,9 @@ int main()
         }
 
         // -1 Stamina every action
-        --playerActions;
+        if(!pausePlayerActions) {
+            --playerActions;
+        }
         // Remove hunger every 5 actions
         actionCounter = actionCounter % 5;
         if (actionCounter == 0 && pauseHunger == 0)
@@ -101,14 +111,16 @@ int main()
         // Chance for player to be struck by lightning if they are outside
         if (playerLocation == "Outside" && actionCounter == 0) {
             int chanceOfLightning;
-            chanceOfLightning = rand() % 30 + 1;
+            chanceOfLightning = rand() % 25 + 1;
+
             if (chanceOfLightning != 5) {
                 cout << "|| You hear thunder, be advised you should head inside." << endl;
                 wetnessBar -= 10;
             } else {
                 cout << "|| You've been struck by lightning! You REALLY need to find some food.";
-                hungerBar -= 20;
+                hungerBar -= 40;
             }
+            return 0;
         }
 
         // Warning that the player is running out of turns and hunger
@@ -119,6 +131,7 @@ int main()
         if (playerDecision == "leave" || playerDecision == "Leave"){
             endGame = 0;
         }
+
 
     } while (endGame > 0 && (playerActions > 0 && hungerBar > 0));
     // End game loop when player runs out of actions/stamina or hunger bar
@@ -165,10 +178,8 @@ void playerUI(int playerActions, int hungerBar, int wetnessBar, int finalScore){
     cout << "           ";
     printWetnessBar(wetnessBar);
     cout << endl;
-    cout << "           " << finalScore << endl;
     cout << "|]===============================[|" << endl;
     cout << "Current Location " << playerLocation << endl; // temp display location
-    getline(cin, playerDecision);
 }
 
 
@@ -179,9 +190,7 @@ void printWetnessBar(int wetnessBar) {
     }
 }
 
-void classPicker(){
-    int playerClass;
-
+void classPicker(int& playerClass){
     do{
         cout << "|| Please pick your class type:" << endl;
         cout << "|| Athlete Class (1) - Starts with protein bars" << endl;
@@ -205,7 +214,7 @@ void classPicker(){
             playerLocation = "Library"; // Starting location
             break;
         case 2:
-            playerClassroom = "Science Center"; // Classroom goal
+            playerClassroom = "Bayhall"; // Classroom goal
             playerLocation = "Library"; // Starting location
             break;
         default: cout << "Invalid input" << endl <<endl;
@@ -234,12 +243,12 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar){
     } else if (hungerBar == 0){
         cout << "Game over, you ran out of hunger." << endl;
     }
-    cout << "You finished with a total of " << finalScore << " points" << endl;
-    cout << "With " << playerActions << " actions and " << hungerBar << " left." << endl;
+    cout << "|| You finished with a total of " << finalScore << " points" << endl;
+    cout << "|| With " << playerActions << " actions and " << hungerBar << " hunger left." << endl;
 }
 
 // Movement System and player interactions
-void movementSystem(int correctAnswers, int playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, bool hasGuessed, bool hasUmbrella){
+int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int playerClass, bool hasGuessed, bool hasUmbrella){
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
         if (playerDecision == "w" && playerActions == 24)
@@ -254,28 +263,60 @@ void movementSystem(int correctAnswers, int playerActions, int mealChoice, int v
             secretMiniGame(randomNumber, playerGuess, counter, hasGuessed, hasUmbrella);
             if(counter < 10)
                 hasUmbrella = true;
+        } else if (playerDecision == "w" && playerActions == 21){
+            playerLocationMessage = "Good job playing the game and good luck out there, It seems to be raining.";
+        }else{
+                playerLocationMessage = "Cant go that way...";
+                playerActions += 1;
         }
     } else if (playerLocation == "Breezeway") { // Decision tree for the Breezeway
-        if (playerDecision == "w" && playerActions == 22)
+        if (playerDecision == "w" && playerActions == 21)
             playerLocationMessage = "You are now in the Breezeway"; // need to fix playerLocation because it keeps getting set to library after here
-        else if (playerDecision == "w" && playerActions == 21) {
+        else if (playerDecision == "w" && playerActions == 20) {
             playerLocationMessage = "Walking straight, you're on a path in between starbucks and a statue.";
             playerLocation = "Outside";
-        } else if (playerDecision == "a" && playerActions == 20) {
+        } else if (playerDecision == "a" && playerActions == 19) {
             playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
             playerLocation = "Hector";
-        } else
-            playerLocationMessage = "error";
+        } else{
+                playerLocationMessage = "Cant go that way...";
+                playerActions += 1;
+        }
     } else if (playerLocation == "Hector") { // Decision tree for the Hector Plaza
         if (playerDecision == "w" && playerActions == 18) {
             playerLocationMessage = "You can pickup the item, or chose to move";
+        } else{
+                playerLocationMessage = "Cant go that way...";
+                playerActions += 1;
         }
-    } else if (playerLocation == "Classroom"){
+    } else if (playerLocation == "Classroom") {
         playerLocationMessage = "Congrats, you made it to your classroom just in time for the exam! \n || Are you ready to take the exam?";
-        if ((playerDecision == "yes" || playerDecision == "Yes") && playerActions == 20){
+        if ((playerDecision == "yes" || playerDecision == "Yes") && playerActions == 20) {
             finalExam(correctAnswers);
             playerLocationMessage = "Lets hope you did well...";
+        } else {
+            playerLocationMessage = "Cant go that way...";
+            playerActions += 1;
         }
+    } else if (playerLocation == "Outside"){
+        playerLocationMessage = "Walking forward, you can see a  building labled 'Bayhall' infront of you and to the left. \n || You also notice the Faculty building to your right.";
+        if (playerDecision == "w" && playerActions == 18){
+            if (playerClass == 2){
+                playerLocationMessage = "It seems to be where you need to take your exam! \n || Would you like to go inside? y/n";
+            } else {
+                playerLocationMessage = "The building doesnt seem to be anything of interest, but you can see some vending machines through a window. \n || Would you like to go inside? y/n";
+            }
+            if ((playerDecision == "yes" || playerDecision == "Yes") && playerActions  == 17){
+                playerLocationMessage = "Entering Bayhall";
+                playerLocation == "Bayhall";
+            } else {
+                playerLocationMessage = "Cant go that way...";
+                ++playerActions;
+            }
+
+        }
+    } else if (playerLocation == "Bayhall"){
+        playerLocation == "You find yourself in front of the doors. Entering, you now see two stretches of hallway, \n || One in front of you leading towards a stairset, and to your right where you see a row of \n || vending machines";
     }
 
     // Dining Hall Menu
@@ -283,6 +324,8 @@ void movementSystem(int correctAnswers, int playerActions, int mealChoice, int v
 
     // Vending Machine Menu
     vendingMachineMenu(vendingChoice);
+
+    return 0;
 }
 
 // Need to add a decision path so player can access the Dining Hall location
@@ -310,8 +353,8 @@ void diningHallMenu(int mealChoice){
                     cout << "Invalid choice. Choose one of the listed options!" << endl;
                     continue;
             }
-            cout << "After eating your food, you decide to head to your class in " << playerClassroom << "," << endl;
-            cout << "walking outside from the Dining Hall you find yourself back at the plaza." << endl;
+            cout << "|| After eating your food, you decide to head to your class in " << playerClassroom << "," << endl;
+            cout << "|| walking outside from the Dining Hall you find yourself back at the plaza." << endl;
             playerLocation = "Plaza";
         }
         break;
@@ -343,8 +386,7 @@ void vendingMachineMenu(int vendingChoice){
                     cout << "Invalid choice. Choose one of the listed options!" << endl;
                     continue;
             }
-            cout << "After eating your food, you decide to head to your class in " << playerClassroom << "," << endl;
-            cout << "walking outside from the Dining Hall you find yourself back at the plaza." << endl;
+            cout << "|| walking away from the vending machine you find yourself back in the" << playerLocation <<"." << endl;
         }
         break;
     }while(true);
@@ -445,6 +487,7 @@ int finalExam(int correctAnswers) {
     }
 
     cout << correctAnswers; // Returning the updated correctAnswers value
+    return 0;
 }
 
 int useUmbrella(bool hasUmbrella, int wetnessBar){
@@ -454,4 +497,22 @@ int useUmbrella(bool hasUmbrella, int wetnessBar){
             wetnessBar += 10;
         }
     }
+    return 0;
 }
+/*
+int lightningChance(int& wetnessBar, int& hungerBar, int actionCounter){
+    if (playerLocation == "Outside" && actionCounter == 0) {
+        int chanceOfLightning;
+        chanceOfLightning = rand() % 25 + 1;
+
+        if (chanceOfLightning != 5) {
+            cout << "|| You hear thunder, be advised you should head inside." << endl;
+            wetnessBar -= 10;
+        } else {
+            cout << "|| You've been struck by lightning! You REALLY need to find some food.";
+            hungerBar -= 40;
+        }
+        return 0;
+    }
+}
+ */
