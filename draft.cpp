@@ -25,12 +25,13 @@ void diningHallMenu(int mealChoice);
 void saveProgress(int playerActions, int hungerBar);
 void loadSaveFile(int& playerActions, int& hungerBar);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
-int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool hasUmbrella);
-int finalExam(int correcctAnswers);
+int movementSystem(int& wetnessBar, int& playerActions,int finalScore, int correctAnswers,  int mealChoice, int vendingChoice,int actionCounter, int hungerBar, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool hasUmbrella);
+int finalExam(int& finalScore);
 int useUmbrella(bool hasUmbrella, int wetnessBar);
 int lightningChance(int& wetnessBar, int& hungerBar ,int actionCounter);
 int endGame = 1;
-
+bool goalOne = true;
+bool goalTwo = false;
 int main()
 {
     system("Color 03");
@@ -59,7 +60,7 @@ int main()
     do{
         // Operations needed every iteration
         actionCounter++;
-        finalScore = (hungerBar + playerActions + 40) / 2;
+        finalScore = (hungerBar + playerActions + 60) / 2;
 
         bool pauseHunger = false; // handles when hungerBar can be manipulated
         bool pausePlayerActions = false;
@@ -71,7 +72,7 @@ int main()
         getline(cin, playerDecision);
 
         if (allowedDecisions.count(playerDecision)) { // Input validation
-            movementSystem(correctAnswers, playerActions, mealChoice, vendingChoice, randomNumber, playerGuess, counter, playerClass, hasGuessed, hasUmbrella);
+            movementSystem(wetnessBar, playerActions, finalScore, mealChoice, vendingChoice, correctAnswers, randomNumber, playerGuess, actionCounter, hungerBar, counter, playerClass, hasGuessed, hasUmbrella);
         } else { // Don't reduce hunger or stamina if an incorrect input is entered
             ++playerActions;
             if (playerActions > 25) {
@@ -95,8 +96,10 @@ int main()
         // Add 20 hunger if player has been to the dining hall
         if (playerLocation == "Dining Hall" && hungerBar <= 80) {
             hungerBar += 20;
+            goalOne = true;
         } else if (playerLocation == "Dining Hall" && hungerBar >= 85) {
             hungerBar = MAX_HUNGER;
+            goalOne = true;
         }
 
         // -1 Stamina every action
@@ -109,6 +112,7 @@ int main()
             hungerBar = hungerBar - 5;
 
         // Chance for player to be struck by lightning if they are outside
+        /*
         if (playerLocation == "Outside" && actionCounter == 0) {
             int chanceOfLightning;
             chanceOfLightning = rand() % 25 + 1;
@@ -122,7 +126,7 @@ int main()
             }
             return 0;
         }
-
+*/
         // Warning that the player is running out of turns and hunger
         if (hungerBar <= 40) {
             cout << "|| You're feeling tired, Find food to refill your stamina." << endl;
@@ -180,6 +184,7 @@ void playerUI(int playerActions, int hungerBar, int wetnessBar, int finalScore){
     cout << endl;
     cout << "|]===============================[|" << endl;
     cout << "Current Location " << playerLocation << endl; // temp display location
+    cout << "||" << setw(6);
 }
 
 
@@ -243,12 +248,13 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar){
     } else if (hungerBar == 0){
         cout << "Game over, you ran out of hunger." << endl;
     }
-    cout << "|| You finished with a total of " << finalScore << " points" << endl;
-    cout << "|| With " << playerActions << " actions and " << hungerBar << " hunger left." << endl;
+    cout << " You finished with a total of " << finalScore << " points" << endl;
+    cout << "|| With " << playerActions << " stamina and " << hungerBar << " hunger left." << endl;
+    cout << "|| Good Job! ";
 }
 
 // Movement System and player interactions
-int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int playerClass, bool hasGuessed, bool hasUmbrella){
+int movementSystem(int& wetnessBar, int& playerActions, int finalScore, int mealChoice, int correctAnswers,  int vendingChoice, int randomNumber, int playerGuess, int counter, int actionCounter, int hungerBar, int playerClass, bool hasGuessed, bool hasUmbrella){
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
         if (playerDecision == "w" && playerActions == 24)
@@ -265,6 +271,8 @@ int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int v
                 hasUmbrella = true;
         } else if (playerDecision == "w" && playerActions == 21){
             playerLocationMessage = "Good job playing the game and good luck out there, It seems to be raining.";
+            playerLocation = "Breezeway";
+            ++playerActions;
         }else{
                 playerLocationMessage = "Cant go that way...";
                 playerActions += 1;
@@ -290,33 +298,55 @@ int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int v
                 playerActions += 1;
         }
     } else if (playerLocation == "Classroom") {
-        playerLocationMessage = "Congrats, you made it to your classroom just in time for the exam! \n || Are you ready to take the exam?";
-        if ((playerDecision == "yes" || playerDecision == "Yes") && playerActions == 20) {
-            finalExam(correctAnswers);
-            playerLocationMessage = "Lets hope you did well...";
-        } else {
-            playerLocationMessage = "Cant go that way...";
-            playerActions += 1;
+        finalExam(finalScore);
+        if (goalTwo){
+            playerLocationMessage = "You've finished your exam!";
         }
+        endGame = 0;
     } else if (playerLocation == "Outside"){
         playerLocationMessage = "Walking forward, you can see a  building labled 'Bayhall' infront of you and to the left. \n || You also notice the Faculty building to your right.";
-        if (playerDecision == "w" && playerActions == 18){
+        if (playerDecision == "w" && playerActions == 19){
             if (playerClass == 2){
                 playerLocationMessage = "It seems to be where you need to take your exam! \n || Would you like to go inside? y/n";
             } else {
                 playerLocationMessage = "The building doesnt seem to be anything of interest, but you can see some vending machines through a window. \n || Would you like to go inside? y/n";
             }
-            if ((playerDecision == "yes" || playerDecision == "Yes") && playerActions  == 17){
-                playerLocationMessage = "Entering Bayhall";
-                playerLocation == "Bayhall";
-            } else {
-                playerLocationMessage = "Cant go that way...";
-                ++playerActions;
-            }
-
+        }else if (playerDecision == "yes" || playerDecision == "Yes" && playerActions  == 17){
+            playerLocationMessage = "Entering Bayhall";
+            playerLocation = "Bayhall";
+        } else {
+            playerLocationMessage = "Cant go that way...";
+            ++playerActions;
         }
     } else if (playerLocation == "Bayhall"){
-        playerLocation == "You find yourself in front of the doors. Entering, you now see two stretches of hallway, \n || One in front of you leading towards a stairset, and to your right where you see a row of \n || vending machines";
+        playerLocationMessage = "You find yourself in front of the doors. Entering, you now see two stretches of hallway, \n || One in front of you leading towards a stairset, and to your right where you see a row of \n || vending machines";
+        if(playerDecision == "w" && playerActions == 16){
+            if(goalOne) {
+                playerLocationMessage = "Walking up the stairs, you eventually find yourself infront of the testing room. \n || Are you ready to take the exam? yes/no";
+                if (playerDecision == "yes" || playerDecision == "Yes" && playerActions == 15)
+                    playerLocationMessage = "Good luck!";
+                else
+                    playerLocationMessage = "Too bad.";
+                playerLocation = "Classroom";
+            } else{
+                playerLocationMessage = "Not quite time to go to your exam, you walk back downstairs and out the front doors \n || You can see the what looks to be the dining hall from here, along with the dugan gym.";
+                playerLocation = "Outside";
+            }
+        }
+    }
+
+    if (playerLocation == "Outside" && actionCounter == 0) {
+        int chanceOfLightning;
+        chanceOfLightning = rand() % 25 + 1;
+
+        if (chanceOfLightning != 5) {
+            cout << "|| You hear thunder, be advised you should head inside." << endl;
+            wetnessBar -= 10;
+        } else {
+            cout << "|| You've been struck by lightning! You REALLY need to find some food.";
+            hungerBar -= 40;
+        }
+        return 0;
     }
 
     // Dining Hall Menu
@@ -332,25 +362,25 @@ int movementSystem(int correctAnswers, int& playerActions, int mealChoice, int v
 void diningHallMenu(int mealChoice){
     do {
         if (playerLocation == "Dining Hall") {
-            cout << "You've made it to the Dining Hall, here you can refill your hunger." << endl;
-            cout << "Pick an option you'd enjoy." << endl;
-            cout << "Meal (1): Burger and fries" << endl;
-            cout << "Meal (2): Chicken nuggets and fries" << endl;
-            cout << "Meal (3): Pizza and wings" << endl;
+            cout << "|| You've made it to the Dining Hall, here you can refill your hunger." << endl;
+            cout << "|| Pick an option you'd enjoy." << endl;
+            cout << "|| Meal (1): Burger and fries" << endl;
+            cout << "|| Meal (2): Chicken nuggets and fries" << endl;
+            cout << "|| Meal (3): Pizza and wings" << endl;
             cin >> mealChoice;
 
             switch (mealChoice) {
                 case 1:
-                    cout << "You chose the burger and fries." << endl;
+                    cout << "|| You chose the burger and fries." << endl;
                     break;
                 case 2:
-                    cout << "You chose the chicken nuggets and fries" << endl;
+                    cout << "|| You chose the chicken nuggets and fries" << endl;
                     break;
                 case 3:
-                    cout << "You chose the pizza and wings." << endl;
+                    cout << "|| You chose the pizza and wings." << endl;
                     break;
                 default:
-                    cout << "Invalid choice. Choose one of the listed options!" << endl;
+                    cout << "|| Invalid choice. Choose one of the listed options!" << endl;
                     continue;
             }
             cout << "|| After eating your food, you decide to head to your class in " << playerClassroom << "," << endl;
@@ -365,22 +395,22 @@ void diningHallMenu(int mealChoice){
 void vendingMachineMenu(int vendingChoice){
     do {
         if (playerLocation == "Vending Machine") {
-            cout << "You've stumbled upon a vending machine..." << endl;
-            cout << "Pick an option you'd enjoy." << endl;
-            cout << "Meal (1): Protein Bar" << endl;
-            cout << "Meal (2): M&Ms" << endl;
-            cout << "Meal (3): Honey Bun microwaved for 10 minutes" << endl;
+            cout << "|| You've stumbled upon a vending machine..." << endl;
+            cout << "|| Pick an option you'd enjoy." << endl;
+            cout << "|| Meal (1): Protein Bar" << endl;
+            cout << "|| Meal (2): M&Ms" << endl;
+            cout << "|| Meal (3): Honey Bun microwaved for 10 minutes" << endl;
             cin >> vendingChoice;
 
             switch (vendingChoice) {
                 case 1:
-                    cout << "You chose the protein bar" << endl;
+                    cout << "|| You chose the protein bar" << endl;
                     break;
                 case 2:
-                    cout << "You chose the M&Ms" << endl;
+                    cout << "|| You chose the M&Ms" << endl;
                     break;
                 case 3:
-                    cout << "You chose the honey bun" << endl;
+                    cout << "|| You chose the honey bun" << endl;
                     break;
                 default:
                     cout << "Invalid choice. Choose one of the listed options!" << endl;
@@ -461,33 +491,44 @@ void saveProgress(int playerActions, int hungerBar) {
         outputFile << "Hunger Bar    : " << hungerBar << endl;
         outputFile.flush();
         outputFile.close();
-        cout << "Success" << endl;
+        cout << "|| File saved successfully" << endl;
     }
 }
 
-int finalExam(int correctAnswers) {
-    char studentInput;
-    cout << "Where is the library?" << endl;
-    cout << "a) In the breezeway next to the dining hall." << endl;
-    cout << "b) In the breezeway in between the center for science and O'connor" << endl;
-    cout << "c) In front of the university center." << endl;
-    cin >> studentInput;
+int finalExam(int& finalScore) {
+    int score = 0;
+    char userAnswer;
+    cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n" ;
+    string questions[10] = {
+            "|| How many years does it take to graduate with a bachelor's degree? \n || A) 4 years. B) 8 years. C) 2 years.\n",
+            "|| How many credit hours do you have to have to be considered a full-time student? \n || A) 10 Hours. B) 15 hours. C) 12 hours.\n",
+            "|| What building is Chic-Fil-A located in?  || A) University Center. B) Island Hall. C) Bay Hall. \n",
+            "|| Which of the following subjects is a core curriculum? \n || A) English. B) History. C) Both \n",
+            "|| Which letter grade corresponds to 80-89? \n || A) C. B) B. C) A.\n",
+            "|| You must take 2 history classes as well as a political science class in order to graduate. T/F?\n",
+            "|| Attending your classes is not mandatory and you can go when you want. T/F? \n",
+            "|| You can get to any of your classes by walking. T/F?",
+            "|| If you get caught cheating, you could risk receiving a 0 on the assignment or worse. T/F?\n",
+            "|| With a meal plan, you can get unlimited meals all year long. T/F?\n"
+    };
 
-    switch(studentInput) {
-        case 'a':
-            correctAnswers -= 5;
-            break;
-        case 'b':
-            break;
-        case 'c':
-            correctAnswers -= 5;
-            break;
-        default:
-            cout << "Invalid input" << endl;
+    char answers[10] = {
+            'A','C','A','C','B','T','F','T','T', 'T'
+    };
+
+    for(int i = 0; i < 10; ++i){
+        cout << questions[i];
+        cin >> userAnswer;
+        if (userAnswer == answers[i]) {
+            playerLocationMessage = "|| You got the answer correct!\n";
+            score += 10;
+        } else{
+            cout << "|| Incorrect, the answer is " << answers[i] << " \n";
+        }
     }
-
-    cout << correctAnswers; // Returning the updated correctAnswers value
-    return 0;
+    cout << "|| Exam Grade: " << score << endl;
+    goalTwo = true;
+    return score;
 }
 
 int useUmbrella(bool hasUmbrella, int wetnessBar){
@@ -499,20 +540,3 @@ int useUmbrella(bool hasUmbrella, int wetnessBar){
     }
     return 0;
 }
-/*
-int lightningChance(int& wetnessBar, int& hungerBar, int actionCounter){
-    if (playerLocation == "Outside" && actionCounter == 0) {
-        int chanceOfLightning;
-        chanceOfLightning = rand() % 25 + 1;
-
-        if (chanceOfLightning != 5) {
-            cout << "|| You hear thunder, be advised you should head inside." << endl;
-            wetnessBar -= 10;
-        } else {
-            cout << "|| You've been struck by lightning! You REALLY need to find some food.";
-            hungerBar -= 40;
-        }
-        return 0;
-    }
-}
- */
