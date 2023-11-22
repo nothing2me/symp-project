@@ -5,6 +5,7 @@
 #include <fstream>
 #include <limits>
 #include <set>
+
 using namespace std;
 string playerClassroom,
         playerDecision,
@@ -17,27 +18,46 @@ void gameIntro();
 void printWetnessBar(int wetnessBar);
 void diningHallMenu(int mealChoice);
 void saveProgress(int playerActions, int hungerBar);
-void loadSaveFile(int& playerActions, int& hungerBar);
-void vendingMachineMenu(bool& hasProtein, int vendingChoice);
+void loadSaveFile(int & playerActions, int & hungerBar);
+void vendingMachineMenu(bool & hasProtein, int vendingChoice);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
-void classPicker(int& playerClass, bool& hasUmbrella, bool& hasProtein);
-void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int& finalScore, int randomNumber, int playerGuess, int counter);
-void playerUI(bool hasUmbrella, bool hasProtein,int playerActions, int hungerBar, int wetnessBar, int finalScore);
-int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hungerBar, int& finalScore, int correctAnswers,  int mealChoice, int vendingChoice,int actionCounter, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool& hasUmbrella, bool& hasProtein);
-int finalExam(int& examScore);
-int lightningChance(int& wetnessBar, int& hungerBar ,int actionCounter);
-int useItems(bool& hasUmbrella, bool& hasProtien, int& hungerBar, int& wetnessBar);
+void classPicker(int & playerClass, bool & hasUmbrella, bool & hasProtein);
+void secretMiniGame(bool & hasUmbrella, bool hasGuessed, int & finalScore, int randomNumber, int playerGuess, int counter);
+void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore);
+int movementSystem(int & wetnessBar, int & playerActions, int & examScore, int & hungerBar, int & finalScore, int mealChoice, int vendingChoice, int actionCounter, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool & hasUmbrella, bool & hasProtein);
+int finalExam(int & examScore);
+int lightningChance(int & wetnessBar, int & hungerBar, int actionCounter);
+int useItems(bool & hasUmbrella, bool & hasProtien, int & hungerBar, int & wetnessBar);
 // Global declarations
 bool goalOne = false, goalTwo = false, continueGame = true;
-const int MAX_HUNGER = 100, MAX_MOISTURE = 100, MAX_STAMINA = 25;
+const int MAX_HUNGER = 100,
+          MAX_MOISTURE = 100,
+          MAX_STAMINA = 25;
 
-int main()
-{
+int main() {
     system("Color 03");
     srand(time(NULL));
     bool hasGuessed = false, hasUmbrella = false, hasProtein = false;
-    int randomNumber, playerClass, playerGuess, finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, examScore = 0, counter = 0, correctAnswers = 100, wetnessBar = MAX_MOISTURE, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
-    set<string> allowedDecisions({"w", "a", "s", "d", "1", "2", "3", "Yes", "yes", "No", "no", "backpack", "Use umbrella", "use umbrella", "leave", "use protein bar", "Use protein bar"});
+    int randomNumber, playerClass, playerGuess, finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, examScore = 0, counter = 0, wetnessBar = MAX_MOISTURE, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
+    set < string > allowedDecisions({
+                                            "w",
+                                            "a",
+                                            "s",
+                                            "d",
+                                            "1",
+                                            "2",
+                                            "3",
+                                            "Yes",
+                                            "yes",
+                                            "No",
+                                            "no",
+                                            "backpack",
+                                            "Use umbrella",
+                                            "use umbrella",
+                                            "leave",
+                                            "use protein bar",
+                                            "Use protein bar"
+                                    });
     playerLocationMessage = "Welcome to the library, you can see a mysterious man standing forward and to your right"; // Starting message
 
     // Splash Screen
@@ -50,13 +70,13 @@ int main()
     // Check for save file
     cout << "|| Do you already have a save file? y/n" << endl;
     cin >> playerDecision;
-    if(playerDecision == "y" || playerDecision == "Y")
+    if (playerDecision == "y" || playerDecision == "Y")
         loadSaveFile(playerActions, hungerBar);
     else
         cout << "|| Creating save file..." << endl;
 
     // Game loop continues while player still has stamina and hunger
-    do{
+    do {
         // Operations needed every iteration
         actionCounter++;
         finalScore = (hungerBar + playerActions + examScore) / 3;
@@ -71,15 +91,14 @@ int main()
         getline(cin, playerDecision);
 
         if (allowedDecisions.count(playerDecision)) { // Input validation
-            movementSystem(wetnessBar, playerActions, finalScore, mealChoice, examScore, hungerBar, vendingChoice, correctAnswers, randomNumber, playerGuess, actionCounter, counter, playerClass, hasGuessed, hasUmbrella, hasProtein);
+            movementSystem(wetnessBar, playerActions, finalScore, mealChoice, examScore, hungerBar, vendingChoice, randomNumber, playerGuess, actionCounter, counter, playerClass, hasGuessed, hasUmbrella, hasProtein);
         } else { // Don't reduce hunger or stamina if an incorrect input is entered
             ++playerActions;
             if (playerActions > 25) {
                 playerActions = MAX_STAMINA;
-            }else if(playerLocationMessage == "Cant go that way"){
+            } else if (playerLocationMessage == "Cant go that way") {
                 pausePlayerActions = true;
-            }
-            else {
+            } else {
                 cout << "|| That didnt seem to do anything..." << endl;
                 pauseHunger = true;
             }
@@ -90,7 +109,7 @@ int main()
         }
 
         // UI
-        playerUI(hasUmbrella,  hasProtein, playerActions, hungerBar, wetnessBar, finalScore);
+        playerUI(hasUmbrella, hasProtein, playerActions, hungerBar, wetnessBar, finalScore);
 
         // Add 20 hunger if player has been to the dining hall
         if (playerLocation == "Dining Hall" && hungerBar <= 80) {
@@ -102,7 +121,7 @@ int main()
         }
 
         // -1 Stamina every action
-        if(!pausePlayerActions) {
+        if (!pausePlayerActions) {
             --playerActions;
         }
         // Remove hunger every 5 actions
@@ -116,14 +135,13 @@ int main()
         }
 
         // Player loses hunger if theyre too wet
-        if(wetnessBar < 50){
+        if (wetnessBar < 50) {
             hungerBar -= 5;
         }
 
-        if (playerDecision == "leave" || playerDecision == "Leave"){
+        if (playerDecision == "leave" || playerDecision == "Leave") {
             continueGame = false;
         }
-
 
         useItems(hasUmbrella, hasProtein, hungerBar, wetnessBar);
 
@@ -136,12 +154,10 @@ int main()
     // Save progress
     saveProgress(playerActions, hungerBar);
 
-
-
     return 0;
 }
 
-void splashScreen(){
+void splashScreen() {
     cout << "||==============||" << endl;
     cout << "|| Mediocracy's ||" << endl;
     cout << "||==============||==========================================================================================||" << endl;
@@ -155,7 +171,7 @@ void splashScreen(){
     cout << "||==========================================================================================================||" << endl;\
 }
 
-void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore){
+void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore) {
     string staminaText = to_string(playerActions) + " Stamina"; // converts playerActions and adds it to string
     string hungerText = to_string(hungerBar) + " Hunger";
     int textPadding = max(staminaText.length(), hungerText.length()); // Calculates text padding based on the length of a string
@@ -163,17 +179,17 @@ void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBa
     cout << "|| " << playerLocationMessage << endl; // Displays game messages, what the player can see, npc interactions, etc.
     cout << "|]===============================[|" << endl;
     cout << "           Forward (w)             " << endl;
-    cout << "   Left (a)            Right (d)   "<< endl;
+    cout << "   Left (a)            Right (d)   " << endl;
     cout << "           Backward (s)            " << endl;
     cout << "                                   " << endl;
-    cout<< setw(16 + textPadding / 2) << staminaText << setw(8 + textPadding / 2)   << endl;
-    cout << setw(16 + textPadding / 2) << hungerText << setw(8 + textPadding / 2)  << endl;
+    cout << setw(16 + textPadding / 2) << staminaText << setw(8 + textPadding / 2) << endl;
+    cout << setw(16 + textPadding / 2) << hungerText << setw(8 + textPadding / 2) << endl;
     cout << "           Wetness Bar" << endl; // Cant decide whether to display hungerBar as an actual bar or number.
     cout << "           ";
     printWetnessBar(wetnessBar);
     cout << endl;
     cout << "|]===============================[|" << endl;
-    if(hasUmbrella || hasProtein) {
+    if (hasUmbrella || hasProtein) {
         cout << "           Inventory:           " << endl;
         if (hasUmbrella && hasProtein) {
             cout << "          -Umbrella           " << endl;
@@ -189,16 +205,15 @@ void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBa
     cout << "||";
 }
 
-
 void printWetnessBar(int wetnessBar) {
     int half = wetnessBar / 10;
     for (int i = 0; i < half; i++) {
-    cout << "*";
+        cout << "*";
     }
 }
 
-void classPicker(int& playerClass, bool& hasUmbrella, bool& hasProtein){
-    do{
+void classPicker(int & playerClass, bool & hasUmbrella, bool & hasProtein) {
+    do {
         cout << "|| Please pick your class type:" << endl;
         cout << "|| Athlete Class (1) - Starts with protein bars" << endl;
         cout << "|| Geek Class (2) - Starts with umbrella" << endl;
@@ -211,11 +226,10 @@ void classPicker(int& playerClass, bool& hasUmbrella, bool& hasProtein){
             cout << " That didnt seem to do anything..." << endl;
             continue;
         }
-    } while(true);
+    } while (true);
 
     // Cases for each class, needs to include items into player inventory before break also
-    switch (playerClass)
-    {
+    switch (playerClass) {
         case 1:
             playerClassroom = "Dugan Wellness Center"; // Classroom goal
             playerLocation = "Library"; // Starting location
@@ -226,11 +240,12 @@ void classPicker(int& playerClass, bool& hasUmbrella, bool& hasProtein){
             playerLocation = "Library"; // Starting location
             hasUmbrella = true;
             break;
-        default: cout << "Invalid input" << endl <<endl;
+        default:
+            cout << "Invalid input" << endl << endl;
     }
 }
 
-void gameIntro(){
+void gameIntro() {
     getline(cin, playerDecision);
     // Intro text
     cout << "|| You just finished playing a game of chess in the library and feel quite hungry, your next class begins in 45 minutes." << endl;
@@ -240,16 +255,16 @@ void gameIntro(){
 
     // Explain game mechanics
     cout << "|| Move either forward, backward, left or right." << endl;
-    cout << "|| You can also type in actions such as examine, use, and store followed by the item name."<< endl;
+    cout << "|| You can also type in actions such as examine, use, and store followed by the item name." << endl;
     cout << "|| Press enter to continue." << endl << endl;
     getline(cin, playerDecision);
 }
 
 // Shows player results when the game ends
-void gameEndResults(int finalScore, int playerActions, int hungerBar){
+void gameEndResults(int finalScore, int playerActions, int hungerBar) {
     if (playerActions == 0) {
         cout << " Game Over, you ran out of time." << endl;
-    } else if (hungerBar == 0){
+    } else if (hungerBar == 0) {
         cout << "Game over, you ran out of hunger." << endl;
     }
     cout << " You finished with a total of " << finalScore << " points" << endl;
@@ -258,7 +273,7 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar){
 }
 
 // Movement System and player interactions
-int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hungerBar, int& finalScore, int mealChoice, int correctAnswers,  int vendingChoice, int randomNumber, int playerGuess, int counter, int actionCounter, int playerClass, bool hasGuessed, bool& hasUmbrella, bool &hasProtein){
+int movementSystem(int & wetnessBar, int & playerActions, int & examScore, int & hungerBar, int & finalScore, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int actionCounter, int playerClass, bool hasGuessed, bool & hasUmbrella, bool & hasProtein) {
     if (playerLocation == "Library") { // Decision tree for the Library, starting location.
         playerLocationMessage = "Welcome to the library";
         if (playerDecision == "w" && playerActions == 24)
@@ -267,19 +282,19 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
             playerLocationMessage = "Walking through the sliding doors, you enter the Breezeway";
         } else if (playerDecision == "w" && playerActions == 22) {
             playerLocation = "Breezeway";
-        } else if (playerDecision == "d" && playerActions == 23){
+        } else if (playerDecision == "d" && playerActions == 23) {
             playerLocationMessage = "You approach a man dressed in dark age clothing, do you wish to talk to him? Yes/No \n || Lets see if you can guess the secret number...";
-        } else if (playerDecision == "Yes" || playerDecision == "yes" && playerActions == 22){
+        } else if (playerDecision == "Yes" || playerDecision == "yes" && playerActions == 22) {
             secretMiniGame(hasUmbrella, hasGuessed, finalScore, randomNumber, playerGuess, counter);
-        } else if (playerDecision == "No" || playerDecision == "no" && playerActions == 22){
+        } else if (playerDecision == "No" || playerDecision == "no" && playerActions == 22) {
             playerLocationMessage = "Erm ok... Good luck?";
-        } else if (playerDecision == "w" && playerActions == 21){
+        } else if (playerDecision == "w" && playerActions == 21) {
             playerLocationMessage = "You walk outside and into the breezeway";
             playerLocation = "Breezeway";
             ++playerActions;
-        }else{
-                playerLocationMessage = "Cant go that way...";
-                playerActions += 1;
+        } else {
+            playerLocationMessage = "Cant go that way...";
+            playerActions += 1;
         }
     } else if (playerLocation == "Breezeway") { // Decision tree for the Breezeway
         if (playerDecision == "w" && playerActions == 21)
@@ -290,49 +305,49 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
         } else if (playerDecision == "a" && playerActions == 19) {
             playerLocationMessage = "You enter the hector garcia plaza thing, kinda cool ig. You see something shiny at your feet...";
             playerLocation = "Hector";
-        } else{
-                playerLocationMessage = "Cant go that way...";
-                playerActions += 1;
+        } else {
+            playerLocationMessage = "Cant go that way...";
+            playerActions += 1;
         }
     } else if (playerLocation == "Hector") { // Decision tree for the Hector Plaza
         if (playerDecision == "w" && playerActions == 18) {
             playerLocationMessage = "You can pickup the item, or chose to move";
-        } else{
-                playerLocationMessage = "Cant go that way...";
-                playerActions += 1;
+        } else {
+            playerLocationMessage = "Cant go that way...";
+            playerActions += 1;
         }
     } else if (playerLocation == "Classroom") {
         finalExam(examScore);
-        if (goalTwo){
+        if (goalTwo) {
             playerLocationMessage = "You've finished your exam!";
         }
         continueGame = false;
-    } else if (playerLocation == "Outside"){
+    } else if (playerLocation == "Outside") {
         playerLocationMessage = "Walking forward, you can see a  building labled 'Bayhall' infront of you and to the left. \n || You also notice the Faculty building to your right.";
-        if (playerDecision == "w" && playerActions == 19){
-            if (playerClass == 2){
+        if (playerDecision == "w" && playerActions == 19) {
+            if (playerClass == 2) {
                 playerLocationMessage = "It seems to be where you need to take your exam! \n || Would you like to go inside? y/n";
             } else {
                 playerLocationMessage = "The building doesnt seem to be anything of interest, but you can see some vending machines through a window. \n || Would you like to go inside? y/n";
             }
-        }else if (playerDecision == "yes" || playerDecision == "Yes" && playerActions  == 17){
+        } else if (playerDecision == "yes" || playerDecision == "Yes" && playerActions == 17) {
             playerLocationMessage = "Entering Bayhall";
             playerLocation = "Bayhall";
         } else {
             playerLocationMessage = "Cant go that way...";
             ++playerActions;
         }
-    } else if (playerLocation == "Bayhall"){
+    } else if (playerLocation == "Bayhall") {
         playerLocationMessage = "You find yourself in front of the doors. Entering, you now see two stretches of hallway, \n || One in front of you leading towards a stairset, and to your right where you see a row of \n || vending machines";
-        if(playerDecision == "w" && playerActions == 16){
-            if(goalOne) {
+        if (playerDecision == "w" && playerActions == 16) {
+            if (goalOne) {
                 playerLocationMessage = "Walking up the stairs, you eventually find yourself infront of the testing room. \n || Are you ready to take the exam? yes/no";
                 if (playerDecision == "yes" || playerDecision == "Yes" && playerActions == 15)
                     playerLocationMessage = "Good luck!";
                 else
                     playerLocationMessage = "Too bad.";
                 playerLocation = "Classroom";
-            } else{
+            } else {
                 playerLocationMessage = "Not quite time to go to your exam, you walk back downstairs and out the front doors \n || You can see the what looks to be the dining hall from here, along with the dugan gym.";
                 playerLocation = "Outside";
             }
@@ -362,7 +377,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
 }
 
 // Need to add a decision path so player can access the Dining Hall location
-void diningHallMenu(int mealChoice){
+void diningHallMenu(int mealChoice) {
     do {
         if (playerLocation == "Dining Hall") {
             cout << "|| You've made it to the Dining Hall, here you can refill your hunger." << endl;
@@ -391,11 +406,11 @@ void diningHallMenu(int mealChoice){
             playerLocation = "Plaza";
         }
         break;
-    }while(true);
+    } while (true);
 }
 
 // Vending Machine interaction, need to add decision path that leads to vending machine
-void vendingMachineMenu(bool& hasProtein, int vendingChoice){
+void vendingMachineMenu(bool & hasProtein, int vendingChoice) {
     do {
         if (playerLocation == "Vending Machine") {
             cout << "|| You've stumbled upon a vending machine..." << endl;
@@ -420,17 +435,17 @@ void vendingMachineMenu(bool& hasProtein, int vendingChoice){
                     cout << "Invalid choice. Choose one of the listed options!" << endl;
                     continue;
             }
-            cout << "|| walking away from the vending machine you find yourself back in the" << playerLocation <<"." << endl;
+            cout << "|| walking away from the vending machine you find yourself back in the" << playerLocation << "." << endl;
         }
         break;
-    }while(true);
+    } while (true);
 }
 
-void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int& finalScore, int randomNumber, int playerGuess, int counter){
+void secretMiniGame(bool & hasUmbrella, bool hasGuessed, int & finalScore, int randomNumber, int playerGuess, int counter) {
     randomNumber = rand() % 100 + 1;
     int bonusAmt;
     cout << "|| Guess the random number: ";
-    do{
+    do {
         ++counter;
         do {
             if (cin >> playerGuess) {
@@ -449,12 +464,12 @@ void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int& finalScore, int ran
         if (playerGuess == randomNumber) {
             cout << "|| Congratulations! \n || You found the secret number!" << endl;
             if (counter <= 10) {
-                if(hasUmbrella){
+                if (hasUmbrella) {
                     cout << "|| You've already got an umbrella, \n || most I can offer you is some bonus points instead" << endl;
                     finalScore += 15;
                 } else {
                     cout << "|| You've won an umbrella!" << endl;
-                    hasUmbrella = true;  // Set hasUmbrella to true here
+                    hasUmbrella = true; // Set hasUmbrella to true here
                 }
             }
             hasGuessed = true;
@@ -463,11 +478,11 @@ void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int& finalScore, int ran
         } else if (playerGuess < randomNumber) {
             cout << "|| Higher, try again: ";
         }
-    }while(!hasGuessed);
-    if(counter <= 10){
+    } while (!hasGuessed);
+    if (counter <= 10) {
         bonusAmt = 10;
         finalScore += 10;
-    } else{
+    } else {
         bonusAmt = 5;
         finalScore += 5;
     }
@@ -476,16 +491,16 @@ void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int& finalScore, int ran
     cout << "|| scored you " << bonusAmt << " bonus points." << endl;
 }
 
-void loadSaveFile(int& playerActions, int& hungerBar) {
+void loadSaveFile(int & playerActions, int & hungerBar) {
     ifstream saveFile("savefile.txt");
 
     if (!saveFile.is_open()) {
         cout << "No save found." << endl;
     } else {
-        saveFile.ignore(numeric_limits<streamsize>::max(), ':'); // Ignore until the ':' character
+        saveFile.ignore(numeric_limits < streamsize > ::max(), ':'); // Ignore until the ':' character
         saveFile >> playerActions;
 
-        saveFile.ignore(numeric_limits<streamsize>::max(), ':'); // Ignore until the ':' character
+        saveFile.ignore(numeric_limits < streamsize > ::max(), ':'); // Ignore until the ':' character
         saveFile >> hungerBar;
 
         saveFile.close();
@@ -506,9 +521,9 @@ void saveProgress(int playerActions, int hungerBar) {
     }
 }
 
-int finalExam(int& examScore) {
+int finalExam(int & examScore) {
     char userAnswer;
-    cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n" ;
+    cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n";
     // Array for Q&A combinations
     string questions[10] = {
             "|| How many years does it take to graduate with a bachelor's degree? \n || A) 4 years. B) 8 years. C) 2 years.\n",
@@ -524,22 +539,31 @@ int finalExam(int& examScore) {
     };
 
     char answers[10] = {
-            'A','C','A','C','B','T','F','T','T','T'
+            'A',
+            'C',
+            'A',
+            'C',
+            'B',
+            'T',
+            'F',
+            'T',
+            'T',
+            'T'
     };
 
-    for(int i = 0; i < 10; ++i){
+    for (int i = 0; i < 10; ++i) {
         cout << questions[i];
         cin >> userAnswer;
         if (userAnswer == answers[i]) {
             playerLocationMessage = "|| You got the answer correct!\n";
             examScore += 10;
-        } else{
+        } else {
             cout << "|| Incorrect, the answer is " << answers[i] << " \n";
         }
     }
     cout << "|| Exam Grade: " << examScore << endl;
 
-    if (examScore >=60)
+    if (examScore >= 60)
         cout << "|| Congrats on passing the exam! You've won!!" << endl;
     else
         cout << "|| Wow you failed. Not suprising." << endl;
@@ -548,7 +572,7 @@ int finalExam(int& examScore) {
     return examScore;
 }
 
-int useItems(bool& hasUmbrella, bool& hasProtein, int& hungerBar, int& wetnessBar){
+int useItems(bool & hasUmbrella, bool & hasProtein, int & hungerBar, int & wetnessBar) {
     if (playerDecision == "Use umbrella" || playerDecision == "use umbrella") {
         cout << " You've equipped an umbrella." << endl;
         if (playerLocation == "Outside" && hasUmbrella) {
