@@ -71,7 +71,7 @@ int main() {
     gameIntro();
 
     // Check for save file
-    cout << "|| Do you already have a save file? y/n" << endl;
+    cout << "|| Do you already have a save file? Y/N" << endl;
     cin >> playerDecision;
     if (playerDecision == "y" || playerDecision == "Y")
         loadSaveFile(playerActions, hungerBar);
@@ -309,7 +309,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
         }
     } else if (playerLocation == "Breezeway"){
         if (playerDecision == "w" && playerActions == 13){
-            playerLocationMessage = "Going down a wide pathway you notice a lage building \n|| labled 'Bayhall', it seems to be of interest. \n|| Would you like to go inside? y/n";
+            playerLocationMessage = "Going down a wide pathway you notice a lage building \n|| labled 'Bayhall', it seems to be of interest. \n|| Would you like to go inside? yes/no";
             playerLocation = "Outside";
         } else if (playerDecision == "a" && playerActions == 13){
             playerLocationMessage = "Walking left you enter the O'Connor plaza, \n|| its decorated with all sorts of festive lights! \n|| You notice a hallway to your left leading towards the parking lot, \n|| and to your right you see a direct path to a building labled 'Bayhall'.";
