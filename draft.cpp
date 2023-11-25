@@ -22,7 +22,7 @@ void printWetnessBar(int wetnessBar);
 void diningHallMenu(int& hungerBar, int mealChoice);
 void saveProgress(int playerActions, int hungerBar);
 void loadSaveFile(int& playerActions, int & hungerBar);
-void vendingMachineMenu(bool& hasProtein, int vendingChoice);
+//void vendingMachineMenu(bool& hasProtein, int vendingChoice);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
 void classPicker(int& playerClass, bool & hasUmbrella, bool & hasProtein);
 void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int & finalScore, int randomNumber, int playerGuess, int counter);
@@ -86,7 +86,7 @@ int main() {
 
         bool pauseHunger = false; // handles when hungerBar can be manipulated
         bool pausePlayerActions = false;
-   
+
         getline(cin, playerDecision);
 
         if (allowedDecisions.count(playerDecision)) { // Input validation
@@ -313,7 +313,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
             playerLocation = "Outside";
         } else if (playerDecision == "a" && playerActions == 13){
             playerLocationMessage = "Walking left you enter the O'Connor plaza, \n|| its decorated with all sorts of festive lights! \n|| You notice a hallway to your left leading towards the parking lot, \n|| and to your right you see a direct path to a building labled 'Bayhall'.";
-            playerLocation = "O'Connor Plaza"; 
+            playerLocation = "O'Connor Plaza";
         } else if (playerDecision == "d" && playerActions == 13) {
             playerLocationMessage = "Walking towards the UC, you notice two pathways \n|| one leading to the Dugan Gym \n|| the other leading to the Dining Hall \n|| Where would you like to go? \n|| 1) Dugan Gym \n|| 2) Dining Hall";
             playerLocation = "University Center Plaza";
@@ -439,7 +439,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
     diningHallMenu(hungerBar, mealChoice);
 
     // Vending Machine Menu
-    vendingMachineMenu(hasProtein, vendingChoice);
+    //vendingMachineMenu(hasProtein, vendingChoice);
 
     return 0;
 }
@@ -478,7 +478,7 @@ void diningHallMenu(int& hungerBar, int mealChoice) {
     } while (true);
 }
 
-// Vending Machine interaction, cutting this out for time purposes 
+// Vending Machine interaction, cutting this out for time purposes
 /*void vendingMachineMenu(bool & hasProtein, int vendingChoice) {
     do {
         if (playerLocation == "Vending Machine") {
@@ -508,7 +508,7 @@ void diningHallMenu(int& hungerBar, int mealChoice) {
         }
         break;
     } while (true);
-*/ }
+}*/
 
 void secretMiniGame(bool & hasUmbrella, bool hasGuessed, int & finalScore, int randomNumber, int playerGuess, int counter) {
     randomNumber = rand() % 100 + 1;
