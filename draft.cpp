@@ -26,7 +26,7 @@ void loadSaveFile(int& playerActions, int & hungerBar);
 void gameEndResults(int finalScore, int playerActions, int hungerBar);
 void classPicker(int& playerClass, bool & hasUmbrella, bool & hasProtein);
 void secretMiniGame(bool& hasUmbrella, bool hasGuessed, int & finalScore, int randomNumber, int playerGuess, int counter);
-void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore);
+void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore, int timeLeft);
 int movementSystem(int& wetnessBar, int & playerActions, int & examScore, int & hungerBar, int & finalScore, int mealChoice, int vendingChoice, int actionCounter, int randomNumber, int playerGuess, int playerClass, int counter, bool hasGuessed, bool& hasUmbrella, bool& hasProtein);
 int finalExam(int& examScore,int& finalScore, int randomNumber, int playerGuess, int counter, bool &hasUmbrella, bool hasGuessed);
 int lightningChance(int & wetnessBar, int & hungerBar, int actionCounter);
@@ -34,14 +34,15 @@ int useItems(bool& hasUmbrella, bool& hasProtien, int& hungerBar, int& wetnessBa
 // Global declarations
 bool goalTwo = false, continueGame = true;
 const int MAX_HUNGER = 100,
-          MAX_MOISTURE = 100,
-          MAX_STAMINA = 15;
+        MAX_MOISTURE = 100,
+        MAX_STAMINA = 15,
+        MAX_TIME = 60;
 
 int main() {
     system("Color 03");
     srand(time(NULL));
     bool hasGuessed = false, hasUmbrella = false, hasProtein = false;
-    int randomNumber, playerClass, playerGuess, finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, examScore = 0, counter = 0, wetnessBar = MAX_MOISTURE, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
+    int randomNumber, playerClass, playerGuess, finalScore, vendingChoice = 0, mealChoice = 0, actionCounter = 0, examScore = 0, counter = 0, timeLeft = MAX_TIME, wetnessBar = MAX_MOISTURE, hungerBar = MAX_HUNGER, playerActions = MAX_STAMINA;
     set < string > allowedDecisions({
                                             "w",
                                             "a",
@@ -122,7 +123,7 @@ int main() {
         }
 
         // UI
-        playerUI(hasUmbrella, hasProtein, playerActions, hungerBar, wetnessBar, finalScore);
+        playerUI(hasUmbrella, hasProtein, playerActions, hungerBar, wetnessBar, finalScore, timeLeft);
 
         // Add 20 hunger if player has been to the dining hall
         if (playerLocation == "Dining Hall Plaza") {
@@ -132,6 +133,7 @@ int main() {
         // -1 Stamina every action
         if (!pausePlayerActions) {
             --playerActions;
+            timeLeft -= 5;
         }
         // Remove hunger every 5 actions
         actionCounter = actionCounter % 2;
@@ -154,7 +156,7 @@ int main() {
 
         useItems(hasUmbrella, hasProtein, hungerBar, wetnessBar);
 
-    } while (continueGame && (playerActions > 0 && hungerBar > 0));
+    } while (continueGame && timeLeft > 0 && (playerActions > 0 && hungerBar > 0));
     // End game loop when player runs out of actions/stamina or hunger bar
 
     // Shows player results, score
@@ -180,9 +182,10 @@ void splashScreen() {
     cout << "||==========================================================================================================||" << endl;\
 }
 
-void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore) {
+void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBar, int wetnessBar, int finalScore, int timeLeft) {
     string staminaText = to_string(playerActions) + " Stamina"; // converts playerActions and adds it to string
     string hungerText = to_string(hungerBar) + " Hunger";
+    string timeText= to_string(timeLeft) + " Minutes Left";
     int textPadding = max(staminaText.length(), hungerText.length()); // Calculates text padding based on the length of a string
 
     cout << "|| " << playerLocationMessage << endl; // Displays game messages, what the player can see, npc interactions, etc.
@@ -191,6 +194,7 @@ void playerUI(bool hasUmbrella, bool hasProtein, int playerActions, int hungerBa
     cout << "   Left (a)            Right (d)   " << endl;
     cout << "           Backward (s)            " << endl;
     cout << "                                   " << endl;
+    cout << setw(18 + textPadding / 2) << timeText << setw(8 + textPadding / 2) << endl;
     cout << setw(16 + textPadding / 2) << staminaText << setw(8 + textPadding / 2) << endl;
     cout << setw(16 + textPadding / 2) << hungerText << setw(8 + textPadding / 2) << endl;
     cout << "           Wetness Bar" << endl; // Cant decide whether to display hungerBar as an actual bar or number.
@@ -257,14 +261,15 @@ void classPicker(int & playerClass, bool & hasUmbrella, bool & hasProtein) {
 void gameIntro() {
     getline(cin, playerDecision);
     // Intro text
-    cout << "|| You just finished playing a game of chess in the library and feel quite hungry, your next class begins in 45 minutes.\n";
-    cout << "|| Make it to the dining hall before time runs out for your exam in " << playerClassroom << "!\n";
+    cout << "|| You just finished playing a game of chess in the library and feel quite hungry,\n";
+    cout << "|| Make it to the dining hall before time runs out for your \n|| 'General College Knowledge Standardized Assessment Test' in " << playerClassroom << "!\n";
+    cout << "|| You have 60 minutes to complete these objectives.\n";
     cout << "|| Press enter to continue.\n";
     getline(cin, playerDecision);
 
     // Explain game mechanics
     cout << "|| Move either forward, backward, left or right.\n";
-    cout << "|| You can also type in actions such as examine, use, and store followed by the item name.\n";
+    cout << "|| You can also type in actions such as use,\n|| depending on the items in your inventory.\n";
     cout << "|| Press enter to continue.\n";
     getline(cin, playerDecision);
 }
@@ -276,8 +281,8 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar) {
     } else if (hungerBar == 0) {
         cout << "Game over, you ran out of hunger." << endl;
     }
-    cout << "|| You finished with a total of " << finalScore << " points\n";
-    cout << "||  " << playerActions << " Stamina and " << hungerBar << " Hunger left.\n";
+    cout << " You finished with a total of " << finalScore << " points\n";
+    cout << "|| " << playerActions << " Stamina and " << hungerBar << " Hunger left.\n";
     cout << "|| Thanks for playing! \n";
 }
 
@@ -294,7 +299,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
             if (playerClass == 2){
                 playerLocationMessage = "You'll find your exam room in Bayhall, \n|| just straight out from the sliding doors and \n|| walk down the pathway, itll be on your left.\n|| Satisfied with their directions, you leave and enter the Breezeway";
             } else {
-                playerLocationMessage = "You'll find your exam room in the Dugan, \n|| just straight out from the sliding doors and to your right, \n|| from there you'll find path way leading to both the Dining Hall and the Dugan.\n|| Satisfied with their directions, you leave and enter the Breezeway\n|| Satisfied with their directions, you leave and enter the Breezeway";
+                playerLocationMessage = "You'll find your exam room in the Dugan, \n|| just straight out from the sliding doors and to your right, \n|| from there you'll find path way leading to both the Dining Hall and the Dugan.\n|| Satisfied with their directions, you leave and enter the Breezeway";
             }
             playerLocation = "Breezeway";
             ++playerActions;
@@ -592,13 +597,13 @@ void saveProgress(int playerActions, int hungerBar) {
 
 int finalExam(int& examScore, int& finalScore, int randomNumber, int playerGuess, int counter, bool & hasUmbrella, bool hasGuessed) {
     char userAnswer;
-    cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n";
+    cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n|| Enter your answers in lowercase";
     // Array for Q&A combinations
     string questions[10] = {
             "|| How many years does it take to graduate with a bachelor's degree? \n|| A) 4 years. B) 8 years. C) 2 years.\n",
             "|| How many credit hours do you have to have to be considered a full-time student? \n|| A) 10 Hours. B) 15 hours. C) 12 hours.\n",
             "|| What building is Chic-Fil-A located in?  \n|| A) University Center. B) Island Hall. C) Bay Hall. \n",
-            "|| Which of the following subjects is a core curriculum? \n || A) English. B) History. C) Both \n",
+            "|| Which of the following subjects is a core curriculum? \n|| A) English. B) History. C) Both \n",
             "|| Which letter grade corresponds to 80-89? \n|| A) C. B) B. C) A.\n",
             "|| You must take 2 history classes as well as a political science class in order to graduate. T/F?\n",
             "|| Attending your classes is not mandatory and you can go when you want. T/F? \n",
@@ -608,21 +613,31 @@ int finalExam(int& examScore, int& finalScore, int randomNumber, int playerGuess
     };
 
     char answers[10] = {
-            'A',
-            'C',
-            'A',
-            'C',
-            'B',
-            'T',
-            'F',
-            'T',
-            'T',
-            'T'
+            'a',
+            'c',
+            'a',
+            'c',
+            'b',
+            't',
+            'f',
+            't',
+            't',
+            't'
     };
-
+    // Input validation and question prompt loop
     for (int i = 0; i < 10; ++i) {
         cout << questions[i];
-        cin >> userAnswer;
+        bool validInput = false;
+        while (!validInput) {
+            cin >> userAnswer;
+            userAnswer = tolower(userAnswer);
+            if (userAnswer == 'a' || userAnswer == 'b' || userAnswer == 'c' || userAnswer == 't' || userAnswer == 'f') {
+                validInput = true;
+            } else {
+                cout << "|| Invalid input. Please enter A, B, C, T, or F: ";
+            }
+        }
+
         if (userAnswer == answers[i]) {
             playerLocationMessage = "|| You got the answer correct!\n";
             examScore += 10;
