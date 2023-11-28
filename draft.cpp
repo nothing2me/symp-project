@@ -28,16 +28,16 @@ int movementSystem(int& wetnessBar, int & playerActions, int& examScore, int & h
 int finalExam(int& examScore,int& finalScore, int randomNumber, int playerGuess, int counter, bool &hasUmbrella, bool hasGuessed);
 int useItems(bool& hasUmbrella, bool& hasEnergy, int& hungerBar, int& wetnessBar);
 // Global declarations
-string playerClassroom,
-        playerDecision,
-        playerLocation,
-        playerLocationMessage;
 ifstream saveFile("savefile.txt");
 bool goalTwo = false, continueGame = true;
 const int MAX_HUNGER = 100,
         MAX_MOISTURE = 100,
         MAX_STAMINA = 15,
         MAX_TIME = 60;
+string playerClassroom,
+        playerDecision,
+        playerLocation,
+        playerLocationMessage;
 
 int main() {
     system("Color 03");
@@ -56,10 +56,11 @@ int main() {
                                             "yes",
                                             "No",
                                             "no",
+                                            "Leave",
+                                            "leave",
                                             "backpack",
                                             "Use umbrella",
                                             "use umbrella",
-                                            "leave",
                                             "Use Energy Bar",
                                             "use energy bar"
                                     });
@@ -610,10 +611,11 @@ void saveProgress(int playerActions, int hungerBar, int timeLeft) {
 
 int finalExam(int& examScore, int& finalScore, int randomNumber, int playerGuess, int counter, bool & hasUmbrella, bool hasGuessed) {
     char userAnswer;
+    int arraySize = 10;
     examScore = 0;
     cout << "|| Welcome to your 'General College Knowledge Standardized Assessment Test' \n|| Please enter your answers in uppercase, such as A, B, C, T or F. \n|| Enter your answers in lowercase\n";
     // Array for Q&A combinations
-    string questions[10] = {
+    string questions[arraySize] = {
             "|| How many years does it take to graduate with a bachelor's degree? \n|| A) 4 years. B) 8 years. C) 2 years.\n",
             "|| How many credit hours do you have to have to be considered a full-time student? \n|| A) 10 Hours. B) 15 hours. C) 12 hours.\n",
             "|| What building is Chic-Fil-A located in?  \n|| A) University Center. B) Island Hall. C) Bay Hall. \n",
@@ -626,7 +628,7 @@ int finalExam(int& examScore, int& finalScore, int randomNumber, int playerGuess
             "|| With a meal plan, you can get unlimited meals all year long. T/F?\n"
     };
 
-    char answers[10] = {
+    char answers[arraySize] = {
             'a',
             'c',
             'a',
@@ -639,7 +641,7 @@ int finalExam(int& examScore, int& finalScore, int randomNumber, int playerGuess
             't'
     };
     // Input validation and question prompt loop
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < arraySize; ++i) {
         cout << questions[i];
         bool validInput = false;
         while (!validInput) {
