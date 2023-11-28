@@ -16,7 +16,7 @@ using namespace std;
 void splashScreen();
 void gameIntro();
 void printWetnessBar(int wetnessBar);
-void diningHallMenu(int& hungerBar, int mealChoice);
+void diningHallMenu(int mealChoice);
 void saveProgress(int playerActions, int hungerBar, int timeLeft);
 void loadSaveFile(int& playerActions, int & hungerBar, int & timeLeft, int & playerClass);
 //void vendingMachineMenu(bool& hasEnergy, int vendingChoice); // Didn't end up being used because of time
@@ -63,7 +63,7 @@ int main() {
                                             "Use Energy Bar",
                                             "use energy bar"
                                     });
-    playerLocationMessage = "Welcome to the library! \n|| You can see a set of sliding doors infront of you, \n|| and a librarian working on a computer to your right."; // Starting message
+    playerLocationMessage = "Welcome to the library! \n|| You can see a set of sliding doors in front of you, \n|| and a librarian working on a computer to your right."; // Starting message
 
     // Splash Screen
     splashScreen();
@@ -127,7 +127,7 @@ int main() {
 
         // Add 20 hunger if player has been to the dining hall
         if (playerLocation == "Dining Hall Plaza") {
-            hungerBar += 20;
+            hungerBar += 10;
         }
 
         // -1 Stamina every action
@@ -296,7 +296,7 @@ void gameEndResults(int finalScore, int playerActions, int hungerBar, int timeLe
 // Movement System and player interactions
 int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hungerBar, int& finalScore, int mealChoice, int vendingChoice, int randomNumber, int playerGuess, int counter, int actionCounter, int playerClass, bool hasGuessed, bool& hasUmbrella, bool& hasEnergy) {
     if (playerLocation == "Library"){
-        // Decision tree for geek class
+        // Decision tree
         if (playerDecision == "w" && playerActions == 14) {
             playerLocationMessage = "Walking into the breezeway, you can see: \n|| the O'Connor Plaza to your left \n|| a long, wide walkway infront of you \n|| and to your right, a map.";
             playerLocation = "Breezeway";
@@ -324,7 +324,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
             playerLocationMessage = "Going down a wide pathway you notice a large building \n|| labled 'Bayhall', it seems to be of interest. \n|| Would you like to go inside? yes/no";
             playerLocation = "Outside";
         } else if (playerDecision == "a" && playerActions == 13){
-            playerLocationMessage = "Walking left you enter the O'Connor plaza, \n|| its decorated with all sorts of festive lights! \n|| You notice a hallway to your left leading towards the parking lot, \n|| and to your right you see a direct path to a building labled 'Bayhall'.";
+            playerLocationMessage = "Walking left you enter the O'Connor plaza, \n|| its decorated with all sorts of festive lights! \n|| You notice a hallway to your left leading towards the parking lot, \n|| and to your right you see a direct path to a building labeled 'Bayhall'.";
             playerLocation = "O'Connor Plaza";
         } else if (playerDecision == "d" && playerActions == 13) {
             playerLocationMessage = "Walking towards the UC, you notice two pathways \n|| one leading to the Dugan Gym \n|| the other leading to the Dining Hall \n|| Where would you like to go? \n|| 1) Dugan Gym \n|| 2) Dining Hall";
@@ -365,7 +365,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
     } else if (playerLocation == "Dining Hall Plaza"){
         if (playerClass == 1) {
             if (playerDecision == "d" && playerActions == 10) {
-                playerLocationMessage = "Going up the steps to Bayhall, you walk inside and notice \n|| that this isnt your classroom!! \n|| Darting to the Dugan Gym, you make it to the classroom just in time. \n|| Are you ready to take the exam? yes/no ";\
+                playerLocationMessage = "Going up the steps to Bayhall, you walk inside and notice \n|| that this isn't your classroom!! \n|| Darting to the Dugan Gym, you make it to the classroom just in time. \n|| Are you ready to take the exam? yes/no ";\
                 playerLocation = "Exam Classroom";
             } else if (playerDecision == "a" && playerActions == 10) {
                 playerLocationMessage = "Going up the steps to the Dugan, you walk inside and notice \n|| a classroom labeled 'Exam Room' to your right, it looks to be your destination! \n|| Are you ready to take the exam? yes/no";;
@@ -381,7 +381,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
                 playerLocationMessage = "Going up the steps to Bayhall, you walk inside and notice a staircase in front of you leading \n|| towards a classroom labeled 'Exam Room', it looks to be your destination!\n|| Are you ready to take the exam? yes/no";
                 playerLocation = "Exam Classroom";
             } else if (playerDecision == "a" && playerActions == 10) {
-                playerLocationMessage = "Going up the steps to the Dugan, you walk inside and notice \n|| that this isnt your classroom!! \n|| Darting to the Bayhall, you make it to the classroom just in time. \n|| Are you ready to take the exam? yes/no";
+                playerLocationMessage = "Going up the steps to the Dugan, you walk inside and notice \n|| that this isn't your classroom!! \n|| Darting to the Bayhall, you make it to the classroom just in time. \n|| Are you ready to take the exam? yes/no";
                 playerLocation = "Exam Classroom";
             }else {
                 playerLocationMessage = "Cant go that way...";
@@ -438,7 +438,7 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
     }
 
     // Dining Hall Menu
-    diningHallMenu(hungerBar, mealChoice);
+    diningHallMenu(mealChoice);
 
     // Vending Machine Menu
     //vendingMachineMenu(hasEnergy, vendingChoice);
@@ -446,15 +446,14 @@ int movementSystem(int& wetnessBar, int& playerActions, int& examScore, int& hun
     return examScore;
 }
 
-// NEED TO FIX INPUT VALIDATION
-void diningHallMenu(int& hungerBar, int mealChoice) {
+void diningHallMenu(int mealChoice) {
     do {
         if (playerLocation == "Dining Hall") {
             cout << "|| You've made it to the Dining Hall!" << "\n";
             cout << "|| Pick an option you'd enjoy." << "\n";
             cout << "|| 1) - Burger and fries" << "\n";
             cout << "|| 2) - Tofu and udon" << "\n";
-            cout << "|| 3) - Chicken curry and tumeric rice" << "\n";
+            cout << "|| 3) - Chicken curry and tureric rice" << "\n";
             cin >> mealChoice;
 
             switch (mealChoice) {
